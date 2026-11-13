@@ -1,0 +1,1740 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spec Check</title>
+<meta name="description" content="Check schemes of work, assessment schedules and QA documents against an awarding body specification, and build assessment schedules from the college calendar.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#142033; --ink-2:#4B586B; --line:#D3DAE5;
+  --accent:#1F3A68; --accent-ink:#FFFFFF; --focus:#2F6BFF;
+  --met:#1D7A4C; --met-bg:#DDF1E5; --part:#8A5A00; --part-bg:#FAEBC8; --gap:#B3261E; --gap-bg:#FBE3E0;
+  --unv:#556275; --unv-bg:#E5E9EF; --unc:#8A94A5;
+  --serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --sans:"Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1520; --surface:#161F2D; --surface-2:#1B2635; --ink:#E7ECF4; --ink-2:#9DA9BB; --line:#2A3748;
+    --accent:#A9C2F2; --accent-ink:#0E1520; --focus:#7FA6FF;
+    --met:#6FD3A0; --met-bg:#173A2A; --part:#F0C36A; --part-bg:#3B2E10; --gap:#FF9B91; --gap-bg:#40201D;
+    --unv:#AAB5C6; --unv-bg:#243041; --unc:#6F7B8E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1520; --surface:#161F2D; --surface-2:#1B2635; --ink:#E7ECF4; --ink-2:#9DA9BB; --line:#2A3748;
+  --accent:#A9C2F2; --accent-ink:#0E1520; --focus:#7FA6FF;
+  --met:#6FD3A0; --met-bg:#173A2A; --part:#F0C36A; --part-bg:#3B2E10; --gap:#FF9B91; --gap-bg:#40201D;
+  --unv:#AAB5C6; --unv-bg:#243041; --unc:#6F7B8E;
+  color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*,*::before,*::after{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;letter-spacing:-0.01em;}
+h1{font-size:clamp(28px,4.2vw,40px);}
+h2{font-size:22px;}
+h3{font-size:17px;}
+p{margin:0;}
+button,input,select,textarea{font:inherit;color:inherit;}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px;}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px;}
+[hidden]{display:none !important;}
+
+/* masthead */
+.mast{border-bottom:1px solid var(--line);background:var(--surface);}
+.mast .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:14px;padding-bottom:14px;flex-wrap:wrap;}
+.brand{display:flex;align-items:baseline;gap:12px;}
+.brand b{font-family:var(--serif);font-size:22px;font-weight:600;}
+.brand span{color:var(--ink-2);font-size:13px;}
+.mast-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* buttons */
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:500;font-size:14px;}
+.btn:hover{border-color:var(--ink-2);}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);padding:12px 20px;font-size:15px;font-weight:600;}
+.btn.primary:hover{filter:brightness(1.08);}
+.btn[disabled]{opacity:.45;cursor:not-allowed;}
+.btn.small{padding:5px 10px;font-size:13px;}
+.btn.link{border:none;background:none;padding:2px 0;color:var(--accent);text-decoration:underline;text-underline-offset:3px;}
+
+/* setup */
+.intro{padding:40px 0 24px;max-width:760px;}
+.intro p{color:var(--ink-2);margin-top:12px;font-size:16px;}
+.notice{border:1px solid var(--line);border-left:4px solid var(--part);background:var(--surface);padding:12px 14px;border-radius:6px;margin-bottom:16px;font-size:14px;}
+.notice.err{border-left-color:var(--gap);}
+.zones{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:820px){.zones{grid-template-columns:1fr 1fr;}.zone.wide{grid-column:1/-1;}}
+.zone{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px;}
+.zone-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap;}
+.zone-head small{color:var(--ink-2);}
+.req-tag{font-size:12px;font-weight:600;color:var(--gap);}
+.zone p.hint{color:var(--ink-2);font-size:14px;}
+.drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:22px 14px;border:1.5px dashed var(--line);border-radius:8px;background:var(--surface-2);text-align:center;cursor:pointer;color:var(--ink-2);font-size:14px;}
+.drop:hover,.drop.over,.drop:focus-within{border-color:var(--accent);color:var(--ink);}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.drop strong{color:var(--ink);font-weight:600;}
+.doclist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.doc{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);}
+.doc-row{display:flex;gap:10px;align-items:center;justify-content:space-between;}
+.doc-name{font-weight:500;overflow-wrap:anywhere;}
+.doc-meta{color:var(--ink-2);font-size:13px;}
+.doc-warn{color:var(--part);font-size:13px;margin-top:4px;}
+.doc details{margin-top:6px;}
+.doc summary{cursor:pointer;color:var(--ink-2);font-size:13px;}
+.doc pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--sans);font-size:12.5px;background:var(--surface-2);border-radius:6px;padding:8px;margin:6px 0 0;max-height:180px;overflow:auto;}
+.paste textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:10px;resize:vertical;}
+.paste .row{display:flex;gap:8px;margin-top:8px;}
+.settings{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:16px;}
+.fields{display:grid;gap:14px;grid-template-columns:1fr;}
+@media(min-width:820px){.fields{grid-template-columns:1fr 2fr 1fr;}}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;}
+label.f input,label.f select,label.f textarea{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:9px 10px;font-weight:400;font-size:14px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;background:var(--surface-2);}
+.chip input{accent-color:var(--accent);margin:0;}
+.chip:has(input:checked){border-color:var(--accent);background:var(--surface);}
+fieldset{border:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+legend{font-size:13px;font-weight:600;padding:0;margin-bottom:6px;}
+.runbar{margin:20px 0 48px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+.runbar .status{color:var(--ink-2);font-size:14px;max-width:560px;}
+
+/* progress */
+.progress{padding:40px 0 60px;max-width:720px;}
+.steps{list-style:none;margin:24px 0;padding:0;display:flex;flex-direction:column;gap:0;border-left:2px solid var(--line);}
+.steps li{position:relative;padding:0 0 22px 24px;}
+.steps li::before{content:"";position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--line);}
+.steps li.active::before{border-color:var(--accent);background:var(--accent);animation:pulse 1.4s ease-in-out infinite;}
+.steps li.done::before{border-color:var(--met);background:var(--met);}
+.steps li.error::before{border-color:var(--gap);background:var(--gap);}
+.steps b{display:block;font-weight:600;}
+.steps span{color:var(--ink-2);font-size:14px;}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(47,107,255,.18);}}
+@media (prefers-reduced-motion: reduce){.steps li.active::before{animation:none;}}
+.found{font-family:var(--serif);font-size:20px;}
+
+/* results */
+.res-head{padding:32px 0 8px;display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;}
+.res-head .sub{color:var(--ink-2);margin-top:6px;}
+.res-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.headline{font-family:var(--serif);font-size:clamp(19px,2.4vw,24px);line-height:1.4;max-width:860px;margin:16px 0 22px;}
+.board{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;}
+.board-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:12px;}
+.pct{font-size:14px;color:var(--ink-2);}
+.pct b{font-family:var(--serif);font-size:22px;color:var(--ink);font-weight:600;}
+.mosaic{display:flex;flex-wrap:wrap;gap:3px;}
+.mosaic button{width:14px;height:14px;padding:0;border:none;border-radius:3px;cursor:pointer;background:var(--unc);}
+.mosaic button.sep{margin-left:9px;}
+.mosaic button:hover{outline:2px solid var(--ink);outline-offset:1px;}
+.s-met{--c:var(--met);--cb:var(--met-bg);} .s-partial{--c:var(--part);--cb:var(--part-bg);} .s-gap{--c:var(--gap);--cb:var(--gap-bg);}
+.s-unverifiable{--c:var(--unv);--cb:var(--unv-bg);} .s-unchecked{--c:var(--unc);--cb:var(--unv-bg);}
+.mosaic button.s-met{background:var(--met);} .mosaic button.s-partial{background:var(--part);} .mosaic button.s-gap{background:var(--gap);}
+.mosaic button.s-unverifiable{background:var(--unv);opacity:.55;} .mosaic button.s-unchecked{background:transparent;border:1.5px dashed var(--unc);}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.lg{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer;}
+.lg i{width:10px;height:10px;border-radius:2px;background:var(--c);display:inline-block;}
+.lg[aria-pressed="true"]{border-color:var(--ink);background:var(--cb);}
+.banner{margin-top:14px;padding:10px 14px;border:1px solid var(--line);border-left:4px solid var(--part);background:var(--surface);border-radius:6px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:14px;}
+.tabs{display:flex;gap:4px;margin:26px 0 14px;border-bottom:1px solid var(--line);overflow-x:auto;}
+.tab{appearance:none;background:none;border:none;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer;font-weight:500;color:var(--ink-2);white-space:nowrap;}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.toolbar input,.toolbar select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;font-size:14px;max-width:100%;}
+.toolbar input[type=search]{flex:1;min-width:180px;}
+.count{color:var(--ink-2);font-size:13px;margin-left:auto;}
+.unit-h{margin:18px 0 6px;font-family:var(--serif);font-size:17px;font-weight:600;}
+.reqs{display:flex;flex-direction:column;gap:6px;}
+details.rq{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c,var(--unc));border-radius:6px;}
+details.rq>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:104px 1fr;gap:4px 14px;padding:10px 12px;align-items:start;}
+details.rq>summary::-webkit-details-marker{display:none;}
+@media(min-width:720px){details.rq>summary{grid-template-columns:112px 110px 1fr;}}
+.stamp{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--c);background:var(--cb);border-radius:4px;padding:3px 8px;width:max-content;height:max-content;}
+.rq-ref{font-size:13px;color:var(--ink-2);overflow-wrap:anywhere;}
+.rq-text{grid-column:1/-1;}
+@media(min-width:720px){.rq-text{grid-column:auto;}}
+.rq-body{padding:4px 14px 16px 14px;border-top:1px solid var(--line);display:grid;gap:14px;}
+@media(min-width:820px){.rq-body{grid-template-columns:1fr 1fr 1fr;}}
+.rq-body h4{margin:12px 0 4px;font-size:12.5px;font-weight:600;color:var(--ink-2);}
+.rq-body p{font-size:14px;overflow-wrap:anywhere;}
+.rq-review{grid-column:1/-1;display:grid;gap:10px;border-top:1px dashed var(--line);padding-top:12px;}
+@media(min-width:720px){.rq-review{grid-template-columns:200px 1fr;}}
+.rq-review select,.rq-review textarea{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:7px 9px;font-size:14px;width:100%;}
+.rq-meta{font-size:12.5px;color:var(--ink-2);margin-top:6px;}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px;}
+.card.sev-high{border-left:4px solid var(--gap);} .card.sev-medium{border-left:4px solid var(--part);} .card.sev-low{border-left:4px solid var(--unv);}
+.card .tag{font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:4px;}
+.card p+p{margin-top:8px;}
+ol.prio{padding-left:22px;margin:0;display:flex;flex-direction:column;gap:12px;}
+ol.prio li::marker{font-family:var(--serif);font-weight:600;}
+.empty{padding:28px;text-align:center;color:var(--ink-2);border:1px dashed var(--line);border-radius:10px;}
+.fine{color:var(--ink-2);font-size:13px;max-width:760px;}
+.modal{position:fixed;inset:0;background:rgba(10,15,25,.6);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;}
+.modal>div{background:var(--surface);border-radius:10px;padding:18px;max-width:720px;width:100%;display:grid;gap:10px;}
+.modal textarea{width:100%;height:300px;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px;font-family:monospace;font-size:12px;}
+footer.fine{padding:30px 0 50px;}
+
+/* schedule builder */
+.bcards{display:flex;flex-direction:column;gap:16px;margin-bottom:56px;}
+.bcards h3 small{font-family:var(--sans);font-weight:400;color:var(--ink-2);font-size:13px;margin-left:8px;}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.bar .fine{max-width:none;}
+.sub-h{margin:14px 0 6px;font-size:13px;font-weight:600;color:var(--ink-2);}
+.inp{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:7px 9px;font-size:14px;width:100%;min-width:0;}
+.rowedit{display:grid;gap:8px;align-items:center;grid-template-columns:1fr auto;margin-bottom:6px;}
+.rowedit.t3{grid-template-columns:1.5fr 1fr 1fr auto;}
+@media(max-width:640px){.rowedit.t3{grid-template-columns:1fr 1fr;}.rowedit.t3 .inp:first-child{grid-column:1/-1;}}
+.rowedit.grp{grid-template-columns:minmax(120px,200px) 1fr auto;}
+@media(max-width:640px){.rowedit.grp{grid-template-columns:1fr auto;}.rowedit.grp .chips{grid-column:1/-1;}}
+.paramgrid{display:grid;gap:14px 18px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+.paramgrid .span{grid-column:1/-1;}
+.scroll-x{overflow-x:auto;}
+.atable{width:100%;border-collapse:collapse;font-size:14px;min-width:640px;}
+.atable th{text-align:left;font-size:12.5px;color:var(--ink-2);font-weight:600;padding:4px 6px;}
+.atable td{padding:5px 6px;border-top:1px solid var(--line);vertical-align:top;}
+.atable td .inp{padding:5px 7px;}
+.atable.ro td{vertical-align:top;}
+.atable td.nowrap{white-space:nowrap;}
+.flags{margin:10px 0 0;padding-left:20px;font-size:14px;}
+.tlwrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface);}
+table.tl{border-collapse:separate;border-spacing:0;font-size:12px;}
+table.tl th,table.tl td{padding:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;font-weight:400;}
+table.tl td.name,table.tl th.name{position:sticky;left:0;background:var(--surface);min-width:190px;max-width:230px;padding:6px 8px;text-align:left;z-index:1;font-size:13px;}
+table.tl th.term{font-size:12px;font-weight:600;color:var(--ink-2);padding:4px 2px;white-space:nowrap;overflow:hidden;}
+table.tl th.dt{height:54px;vertical-align:bottom;color:var(--ink-2);}
+table.tl th.dt span{writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;padding:3px 0;}
+table.tl .c{width:26px;min-width:26px;height:30px;}
+table.tl .off{background:repeating-linear-gradient(135deg,transparent 0 4px,var(--line) 4px 5px);}
+table.tl .ev-main{background:var(--accent);color:var(--accent-ink);font-weight:600;}
+table.tl .ev-mock{background:var(--part-bg);color:var(--part);font-weight:600;}
+table.tl .ev-resit{background:var(--gap-bg);color:var(--gap);font-weight:600;}
+.key{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin:10px 0;}
+.key b{display:inline-block;width:22px;text-align:center;border-radius:3px;margin-right:6px;font-size:12px;}
+.key .k-main{background:var(--accent);color:var(--accent-ink);} .key .k-mock{background:var(--part-bg);color:var(--part);} .key .k-resit{background:var(--gap-bg);color:var(--gap);}
+.typ{font-weight:600;font-size:12.5px;}
+.typ.main{color:var(--accent);} .typ.mock{color:var(--part);} .typ.resit{color:var(--gap);}
+.flagtxt{color:var(--part);font-size:13px;}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="brand"><b>Spec Check</b><span>Compliance audit for schemes of work, assessment plans and QA paperwork</span></div>
+    <div class="mast-actions">
+      <button class="btn small" id="btnKey">Add API key</button>
+      <button class="btn small" id="btnBuilder">Build an assessment schedule</button>
+      <button class="btn small" id="btnRestore" hidden>Open last audit</button>
+      <button class="btn small" id="btnReset" hidden>Start again</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- SETUP -->
+  <section id="viewSetup">
+    <div class="intro">
+      <h1>Check your paperwork against the specification</h1>
+      <p>Add the awarding body specification and the documents you want checked. Each requirement in the specification is tested against your evidence and marked met, partial, a gap, or not verifiable from the documents supplied.</p>
+    </div>
+    <div id="noticeArea"></div>
+
+    <div class="zones" id="zones"></div>
+
+    <div class="settings">
+      <div class="fields">
+        <label class="f">Awarding body
+          <select id="setBody">
+            <option>NOCN</option><option>EAL</option><option>City &amp; Guilds</option><option>Pearson (BTEC)</option><option>Other / not sure</option>
+          </select>
+        </label>
+        <label class="f">Qualification title and level (optional)
+          <input id="setQual" type="text" placeholder="e.g. Level 2 Diploma in Site Carpentry">
+        </label>
+        <label class="f">Check content at
+          <select id="setGran">
+            <option value="lo">Learning outcome level</option>
+            <option value="ac">Assessment criterion level (slower)</option>
+          </select>
+        </label>
+      </div>
+      <fieldset>
+        <legend>Areas to check</legend>
+        <div class="chips" id="catChips"></div>
+      </fieldset>
+      <label class="f">Context for the check (optional)
+        <textarea id="setNotes" rows="2" placeholder="e.g. Two groups, 30 weeks, workshop-based; assessment briefs are held in a separate pack"></textarea>
+      </label>
+    </div>
+
+    <div class="runbar">
+      <button class="btn primary" id="btnRun" disabled>Run compliance check</button>
+      <div class="status" id="runStatus"></div>
+    </div>
+  </section>
+
+  <!-- SCHEDULE BUILDER -->
+  <section id="viewBuilder" hidden>
+    <div class="intro">
+      <button class="btn small" id="btnBuilderBack" type="button" style="margin-bottom:18px">Back to the compliance check</button>
+      <h1>Build an assessment schedule</h1>
+      <p>No schedule in place? Add the college calendar and set your rules. Each main assessment is placed with a mock beforehand and a resit afterwards, only on days your groups are in college and outside closures.</p>
+    </div>
+    <div id="bNotice"></div>
+    <div class="bcards" id="bBody"></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section id="viewProgress" class="progress" hidden>
+    <h2>Checking your documents</h2>
+    <p class="fine" style="margin-top:8px">This can take several minutes for a full specification. Keep this tab open. Checks use your Anthropic API key.</p>
+    <ol class="steps" id="steps">
+      <li id="st1"><b>Reading the specification</b><span></span></li>
+      <li id="st2"><b>Testing each requirement against your documents</b><span></span></li>
+      <li id="st3"><b>Cross-checking documents and prioritising actions</b><span></span></li>
+    </ol>
+    <p class="found" id="foundCount"></p>
+    <div style="margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn" id="btnStop">Stop</button>
+      <span class="fine" id="elapsed"></span>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="viewResults" hidden>
+    <div class="res-head">
+      <div>
+        <h1>Audit result</h1>
+        <p class="sub" id="resSub"></p>
+      </div>
+      <div class="res-actions">
+        <button class="btn" id="btnCsv">Download matrix (CSV)</button>
+        <button class="btn" id="btnReport">Download report (HTML)</button>
+        <button class="btn" id="btnBack">Edit documents</button>
+      </div>
+    </div>
+    <p class="headline" id="resHeadline"></p>
+
+    <div class="board">
+      <div class="board-top">
+        <div class="pct" id="resPct"></div>
+        <div class="fine">Each square is one requirement, in specification order. Select one to open it.</div>
+      </div>
+      <div class="mosaic" id="mosaic" role="list"></div>
+      <div class="legend" id="legend"></div>
+      <div class="banner" id="uncheckedBanner" hidden></div>
+    </div>
+
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" aria-selected="true" data-tab="matrix">Requirement matrix</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="cross">Cross-document checks</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="actions">Priority actions</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="docs">Documents and method</button>
+    </div>
+
+    <div id="tabMatrix">
+      <div class="toolbar">
+        <input type="search" id="fQ" placeholder="Search requirements" aria-label="Search requirements">
+        <select id="fCat" aria-label="Filter by area"></select>
+        <select id="fUnit" aria-label="Filter by unit"></select>
+        <span class="count" id="fCount"></span>
+      </div>
+      <div id="matrixList"></div>
+    </div>
+    <div id="tabCross" hidden></div>
+    <div id="tabActions" hidden></div>
+    <div id="tabDocs" hidden></div>
+  </section>
+
+  <footer class="fine">
+    This is an AI-assisted check to support, not replace, professional IQA judgement. Review each finding against the source documents before acting on it or sharing it with an external quality assurer. Documents are read in your browser and the relevant text is sent to the Anthropic API, using your own key, to run the check.
+  </footer>
+</main>
+
+<div class="modal" id="keyModal" hidden>
+  <div>
+    <b>Anthropic API key</b>
+    <p class="fine">Checks run by sending the relevant text of your documents to the Anthropic API, billed to your own API account. The key is stored only in this browser and is sent only to api.anthropic.com. Don’t save a key on a shared computer. You can create a key at console.anthropic.com.</p>
+    <label class="f">API key<input id="keyInput" class="inp" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…"></label>
+    <label class="f">Model
+      <select id="keyModel" class="inp">
+        <option value="claude-sonnet-5-5">Claude Sonnet 5.5 (recommended)</option>
+        <option value="claude-opus-5-5">Claude Opus 5.5 (most thorough, costs more)</option>
+        <option value="claude-haiku-5-5">Claude Haiku 5.5 (fastest, least thorough)</option>
+      </select>
+    </label>
+    <div class="bar"><button class="btn primary" id="keySave" type="button">Save</button><button class="btn" id="keyClear" type="button">Remove saved key</button><button class="btn" id="keyClose" type="button">Close</button></div>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div>
+    <b id="modalTitle">Copy file contents</b>
+    <p class="fine">Saving files isn’t available here, so copy the contents below into a new file.</p>
+    <textarea id="modalText" readonly></textarea>
+    <div><button class="btn" id="modalClose">Close</button></div>
+  </div>
+</div>
+
+<script>
+/* Standalone runtime: lets this page run outside claude.ai by calling the Anthropic API with the user's own key. */
+(function(){
+  if (window.claude) return;
+  var KEY='spec-check-apikey', MODEL='spec-check-model', SYSTEM='You return only the JSON value requested, with no preamble, commentary or markdown fences.';
+  function ls(k,v){ try{ if(v===undefined) return localStorage.getItem(k)||''; if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} return ''; }
+  window.__standalone = true;
+  window.__lastApiError = '';
+  window.__specKey = {
+    get:function(){return ls(KEY);}, set:function(v){ls(KEY,v);}, clear:function(){ls(KEY,null);},
+    getModel:function(){return ls(MODEL)||'claude-sonnet-5-5';}, setModel:function(v){ls(MODEL,v);}
+  };
+  async function call(input, opts){
+    var key=ls(KEY); if(!key) throw {code:'not_granted',message:'No API key saved'};
+    var messages = typeof input==='string' ? [{role:'user',content:input}] : input;
+    var res;
+    try{
+      res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:opts&&opts.signal,
+        headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:window.__specKey.getModel(),max_tokens:8000,system:SYSTEM,messages:messages})});
+    }catch(e){
+      if(e&&e.name==='AbortError') throw {code:'cancelled',message:'Cancelled'};
+      window.__lastApiError='The browser couldn’t reach api.anthropic.com. Check your connection.';
+      throw {code:'upstream_error',message:String(e&&e.message||e)};
+    }
+    if(!res.ok){
+      var msg=''; try{ msg=(await res.json()).error.message; }catch(e){}
+      window.__lastApiError=msg;
+      var c = res.status===401 ? 'not_granted' : res.status===429 ? 'rate_limited'
+        : (res.status===400 && /too long|too large|exceed/i.test(msg)) ? 'prompt_too_large'
+        : (res.status===529||res.status>=500) ? 'upstream_error' : 'sampling_disabled';
+      throw {code:c,message:msg};
+    }
+    var data=await res.json();
+    var text=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    return {text:text,truncated:data.stop_reason==='max_tokens'};
+  }
+  function parseLoose(t){
+    try{ return JSON.parse(t); }catch(e){}
+    var f=t.match(/```(?:json)?\s*([\s\S]*?)```/); if(f){ try{ return JSON.parse(f[1]); }catch(e){} }
+    var a=t.search(/[\[{]/), b=Math.max(t.lastIndexOf(']'),t.lastIndexOf('}'));
+    if(a>=0&&b>a){ try{ return JSON.parse(t.slice(a,b+1)); }catch(e){} }
+    throw new Error('no json');
+  }
+  async function sample(input,opts){ var r=await call(input,opts); return r; }
+  sample.json = async function(input,opts){
+    var r=await call(input,opts);
+    if(r.truncated) throw {code:'invalid_json',message:'The reply was cut short.',text:r.text};
+    try{ return parseLoose(r.text); }catch(e){ throw {code:'invalid_json',message:'The reply was not valid JSON.',text:r.text}; }
+  };
+  var types={csv:'text/csv',html:'text/html',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',json:'application/json',txt:'text/plain',md:'text/markdown'};
+  var downloads = { save: async function(req){
+    var ext=(req.filename.split('.').pop()||'').toLowerCase();
+    var blob = req.data instanceof Blob ? req.data : new Blob([req.data],{type:types[ext]||'application/octet-stream'});
+    var url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download=req.filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url);},4000);
+    return {status:'saved'};
+  }};
+  window.claude = { use: async function(name){
+    if(name==='sample') return ls(KEY) ? sample : null;
+    if(name==='downloads') return downloads;
+    return null;
+  }};
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ---------- constants ---------- */
+const CATS = {
+  structure:'Structure and rules of combination',
+  content:'Content coverage',
+  assessment:'Assessment',
+  time:'Time (GLH, TQT, duration)',
+  iqa:'IQA and standardisation',
+  resources:'Staffing and resources'
+};
+const STATUS = {
+  met:{label:'Met',icon:'✓'}, partial:{label:'Partial',icon:'◐'}, gap:{label:'Gap',icon:'✕'},
+  unverifiable:{label:'Can’t verify',icon:'?'}, unchecked:{label:'Not checked',icon:'–'}
+};
+const ZONES = [
+  {role:'spec', wide:true, title:'Awarding body specification', required:true, hint:'The qualification specification, unit pack or assessment strategy the centre must follow. You can add more than one file.'},
+  {role:'sow', title:'Scheme of work', hint:'Yearly overview, scheme of work or session plans.'},
+  {role:'assess', title:'Assessment schedule', hint:'Assessment plan, tracker, calendar or assignment timetable.'},
+  {role:'qa', wide:true, title:'Other quality assurance documents', hint:'IQA plan, sampling plan, standardisation records, assessment briefs, assessor details, action plans.'}
+];
+const ROLE_NAME = {spec:'Specification', sow:'Scheme of work', assess:'Assessment schedule', qa:'QA document'};
+const MAX_SPEC_CHUNKS = 24, SPEC_CHUNK = 9000, FULL_EVIDENCE_LIMIT = 80000;
+const STORE_KEY = 'spec-check-v1';
+
+const state = {
+  docs: [], nextId: 1,
+  settings: {body:'NOCN', qual:'', gran:'lo', notes:'', cats:{structure:true,content:true,assessment:true,time:true,iqa:true,resources:true}},
+  reqs: [], cross: null, meta: null,
+  filter: {status:null, cat:'', unit:'', q:''},
+  sample: null, ctl: null, running: false, lastError: ''
+};
+
+/* ---------- helpers ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+function el(tag, attrs, ...kids){
+  const e = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs || {})){
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat()){
+    if (kid == null || kid === false) continue;
+    e.append(kid && kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  return e;
+}
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtNum = n => n.toLocaleString('en-GB');
+const today = () => new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+function trunc(s, n){ s = String(s || ''); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+function slug(s){ return String(s||'audit').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40) || 'audit'; }
+function setView(v){
+  $('#viewSetup').hidden = v !== 'setup';
+  $('#viewBuilder').hidden = v !== 'builder';
+  $('#viewProgress').hidden = v !== 'progress';
+  $('#viewResults').hidden = v !== 'results';
+  window.scrollTo({top:0});
+}
+
+/* ---------- file reading ---------- */
+async function extractFile(file){
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (ext === 'pdf') return extractPdf(await file.arrayBuffer());
+  if (ext === 'docx') return extractDocx(await file.arrayBuffer());
+  if (ext === 'xlsx' || ext === 'xls') return extractSheet(await file.arrayBuffer());
+  if (ext === 'pptx') return extractPptx(await file.arrayBuffer());
+  if (['txt','md','csv','tsv','json'].includes(ext)) return {text:(await file.text()).trim(), note:''};
+  if (ext === 'doc' || ext === 'ppt') throw new Error('Older .' + ext + ' files can’t be read. Save as .' + ext + 'x or PDF and add it again.');
+  throw new Error('This file type isn’t supported. Use PDF, Word (.docx), Excel, PowerPoint (.pptx) or text.');
+}
+async function extractPdf(buf){
+  if (typeof pdfjsLib === 'undefined') throw new Error('The PDF reader didn’t load. Paste the text instead, or reload the page.');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf = await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+  const out = []; let empty = 0;
+  for (let p = 1; p <= pdf.numPages; p++){
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+    const lines = []; let line = '', lastY = null;
+    for (const it of tc.items){
+      if (typeof it.str !== 'string' || it.str === '') { if (it.hasEOL && line){ lines.push(line); line=''; } continue; }
+      const y = it.transform ? it.transform[5] : 0;
+      if (lastY !== null && Math.abs(y - lastY) > 2 && line){ lines.push(line); line = ''; }
+      line += (line && !line.endsWith(' ') && !it.str.startsWith(' ') ? ' ' : '') + it.str;
+      lastY = y;
+      if (it.hasEOL){ lines.push(line); line = ''; lastY = null; }
+    }
+    if (line) lines.push(line);
+    const t = lines.join('\n').trim();
+    if (t.length < 20) empty++;
+    out.push('[Page ' + p + ']\n' + t);
+  }
+  let note = '';
+  if (empty === pdf.numPages) note = 'No readable text found. This looks like a scanned PDF. Use a text-based copy or paste the text.';
+  else if (empty > 0) note = empty + ' of ' + pdf.numPages + ' pages had no readable text (possibly scanned images).';
+  return {text:out.join('\n\n'), note};
+}
+async function extractDocx(buf){
+  if (typeof mammoth === 'undefined') throw new Error('The Word reader didn’t load. Paste the text instead, or reload the page.');
+  const r = await mammoth.convertToHtml({arrayBuffer:buf});
+  const doc = new DOMParser().parseFromString(r.value, 'text/html');
+  const lines = [];
+  const cellText = c => c.textContent.replace(/\s+/g,' ').trim();
+  (function walk(node){
+    for (const ch of node.children){
+      const t = ch.tagName.toLowerCase();
+      if (/^h[1-6]$/.test(t)) lines.push('#'.repeat(+t[1]) + ' ' + ch.textContent.trim());
+      else if (t === 'table'){
+        lines.push('[Table]');
+        for (const tr of ch.querySelectorAll('tr')) lines.push([...tr.children].map(cellText).join(' | '));
+        lines.push('[End table]');
+      }
+      else if (t === 'ul' || t === 'ol') for (const li of ch.querySelectorAll('li')) lines.push('- ' + li.textContent.trim());
+      else if (t === 'p'){ const x = ch.textContent.trim(); if (x) lines.push(x); }
+      else walk(ch);
+    }
+  })(doc.body);
+  return {text:lines.join('\n').trim(), note:''};
+}
+async function extractSheet(buf){
+  if (typeof XLSX === 'undefined') throw new Error('The Excel reader didn’t load. Export to CSV or paste the text instead.');
+  const wb = XLSX.read(buf, {type:'array'});
+  const out = [];
+  for (const name of wb.SheetNames){
+    const csv = XLSX.utils.sheet_to_csv(wb.Sheets[name], {blankrows:false});
+    if (csv.trim()) out.push('[Sheet: ' + name + ']\n' + csv.trim());
+  }
+  return {text:out.join('\n\n'), note:''};
+}
+async function extractPptx(buf){
+  if (typeof JSZip === 'undefined') throw new Error('The PowerPoint reader didn’t load. Export to PDF or paste the text instead.');
+  const zip = await JSZip.loadAsync(buf);
+  const slides = Object.keys(zip.files).filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n))
+    .sort((a,b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
+  const out = [];
+  for (let i = 0; i < slides.length; i++){
+    const xml = await zip.file(slides[i]).async('string');
+    const paras = [...xml.matchAll(/<a:p[ >][\s\S]*?<\/a:p>/g)].map(m => [...m[0].matchAll(/<a:t[^>]*>([^<]*)<\/a:t>/g)].map(x => x[1]).join(''))
+      .map(s => s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").trim()).filter(Boolean);
+    out.push('[Slide ' + (i+1) + ']\n' + paras.join('\n'));
+  }
+  return {text:out.join('\n\n'), note:''};
+}
+
+/* ---------- documents UI ---------- */
+function buildZones(){
+  const host = $('#zones');
+  for (const z of ZONES){
+    const list = el('ul',{class:'doclist',id:'list-'+z.role});
+    const input = el('input',{type:'file',multiple:true,accept:'.pdf,.docx,.xlsx,.xls,.csv,.pptx,.txt,.md','aria-label':'Add files for ' + z.title});
+    const drop = el('label',{class:'drop'}, el('span',{}, el('strong',{},'Choose files'),' or drop them here'), el('span',{},'PDF, Word, Excel, PowerPoint or text'), input);
+    input.addEventListener('change', () => { addFiles(z.role, [...input.files]); input.value = ''; });
+    ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+    drop.addEventListener('drop', e => { addFiles(z.role, [...(e.dataTransfer ? e.dataTransfer.files : [])]); });
+
+    const ta = el('textarea',{placeholder:'Paste the text of the document here','aria-label':'Pasted text for ' + z.title});
+    const paste = el('div',{class:'paste',hidden:true}, ta, el('div',{class:'row'},
+      el('button',{class:'btn small',type:'button',onclick:() => {
+        const t = ta.value.trim(); if (!t) return;
+        addDoc(z.role, 'Pasted text ' + (state.docs.filter(d => d.role === z.role && d.pasted).length + 1), t, '', true);
+        ta.value = ''; paste.hidden = true;
+      }},'Add pasted text'),
+      el('button',{class:'btn small',type:'button',onclick:() => { paste.hidden = true; }},'Cancel')));
+    const pasteBtn = el('button',{class:'btn link',type:'button',onclick:() => { paste.hidden = !paste.hidden; if (!paste.hidden) ta.focus(); }},'Paste text instead');
+
+    host.append(el('section',{class:'zone' + (z.wide ? ' wide' : '')},
+      el('div',{class:'zone-head'}, el('h3',{},z.title), z.required ? el('span',{class:'req-tag'},'Required') : el('small',{},'Add at least one document to check')),
+      el('p',{class:'hint'}, z.hint), drop, list, el('div',{}, pasteBtn), paste,
+      z.role === 'assess' ? el('div',{class:'notice',style:'margin:0'}, 'No assessment schedule yet? ', el('button',{class:'btn link',type:'button',onclick:openBuilder},'Build one from your college calendar')) : null));
+  }
+  const chips = $('#catChips');
+  for (const [k,v] of Object.entries(CATS)){
+    const cb = el('input',{type:'checkbox',checked:true});
+    cb.addEventListener('change', () => { state.settings.cats[k] = cb.checked; updateReady(); });
+    chips.append(el('label',{class:'chip'}, cb, v));
+  }
+}
+async function addFiles(role, files){
+  for (const f of files){
+    if (f.size > 40 * 1024 * 1024){ addDoc(role, f.name, '', 'File is larger than 40 MB and wasn’t read.'); continue; }
+    try{
+      const r = await extractFile(f);
+      addDoc(role, f.name, r.text, r.note || (r.text.length < 50 ? 'Very little text was found in this file.' : ''));
+    }catch(err){
+      showNotice('Couldn’t read “' + f.name + '”: ' + (err && err.message ? err.message : 'unknown error'), true);
+    }
+  }
+}
+function addDoc(role, name, text, note, pasted){
+  state.docs.push({id:state.nextId++, role, name, text, note, pasted: !!pasted});
+  renderDocs(role); updateReady();
+}
+function removeDoc(id){
+  const d = state.docs.find(x => x.id === id); if (!d) return;
+  state.docs = state.docs.filter(x => x.id !== id); renderDocs(d.role); updateReady();
+}
+function renderDocs(role){
+  const list = $('#list-' + role); list.replaceChildren();
+  for (const d of state.docs.filter(x => x.role === role)){
+    list.append(el('li',{class:'doc'},
+      el('div',{class:'doc-row'},
+        el('div',{}, el('div',{class:'doc-name'}, d.name), el('div',{class:'doc-meta'}, fmtNum(d.text.length) + ' characters read')),
+        el('button',{class:'btn small',type:'button','aria-label':'Remove ' + d.name,onclick:() => removeDoc(d.id)},'Remove')),
+      d.note ? el('div',{class:'doc-warn'}, d.note) : null,
+      d.text ? el('details',{}, el('summary',{},'Check what was read'), el('pre',{}, trunc(d.text, 1200))) : null));
+  }
+}
+function showNotice(msg, err){
+  const area = $('#noticeArea');
+  area.replaceChildren(el('div',{class:'notice' + (err ? ' err' : ''), role:'status'}, msg));
+}
+function updateReady(){
+  const spec = state.docs.filter(d => d.role === 'spec' && d.text).length;
+  const ev = state.docs.filter(d => d.role !== 'spec' && d.text).length;
+  const anyCat = Object.values(state.settings.cats).some(Boolean);
+  const missing = [];
+  if (!spec) missing.push('the specification');
+  if (!ev) missing.push('at least one document to check');
+  if (!anyCat) missing.push('at least one area to check');
+  const btn = $('#btnRun');
+  btn.disabled = missing.length > 0 || !state.sample || state.running;
+  const st = $('#runStatus');
+  if (!state.sample) st.textContent = 'Running a check needs an Anthropic API key. Use “Add API key” at the top of the page.';
+  else if (missing.length) st.textContent = 'Still needed: ' + missing.join(', ') + '.';
+  else {
+    const chars = state.docs.reduce((a,d) => a + d.text.length, 0);
+    st.textContent = spec + ' specification file' + (spec === 1 ? '' : 's') + ' and ' + ev + ' document' + (ev === 1 ? '' : 's') + ' ready (' + fmtNum(chars) + ' characters). Running a check uses your Anthropic API credit.';
+  }
+}
+
+/* ---------- text chunking and retrieval ---------- */
+function chunkLines(text, size, maxChunks){
+  const lines = text.split('\n'); const chunks = []; let cur = '';
+  for (const ln of lines){
+    if (cur.length + ln.length + 1 > size && cur){ chunks.push(cur); cur = ''; }
+    cur += ln + '\n';
+  }
+  if (cur.trim()) chunks.push(cur);
+  return {chunks: chunks.slice(0, maxChunks), total: chunks.length};
+}
+function chunkEvidence(doc, size){
+  const out = []; let cur = '', loc = '', start = '';
+  const flush = () => { if (cur.trim()) out.push({doc:doc.label, loc:start, text:cur.trim()}); cur = ''; };
+  for (const ln of doc.text.split('\n')){
+    const m = ln.match(/^\[(Page \d+|Sheet: .+|Slide \d+)\]/);
+    if (m){ flush(); loc = m[1]; start = loc; }
+    if (cur.length + ln.length > size && cur){ flush(); start = loc; }
+    cur += ln + '\n';
+  }
+  flush(); return out;
+}
+const STOP = new Set('the and for with that this are from have has not all any must their they will can may per each such than into out its been being was were should shall which when where what who how your our use used using also but more most other only own same then there these those within without'.split(' '));
+const tok = s => [...new Set((String(s).toLowerCase().match(/[a-z0-9][a-z0-9.]{2,}/g) || []).filter(w => !STOP.has(w)))];
+
+/* ---------- Claude calls ---------- */
+function copyFor(code){
+  switch(code){
+    case 'not_granted': return 'Anthropic didn’t accept the API key. Check it under “API key” and try again.';
+    case 'sampling_disabled': return 'The Anthropic API refused the request' + (window.__lastApiError ? ': ' + window.__lastApiError : '.') + ' Check the key and model under “API key”.';
+    case 'session_expired': return 'Your session has expired. Sign in to Claude again and reload.';
+    case 'rate_limited': return 'A usage or rate limit was reached. Wait a few minutes, then use “Re-check unchecked”.';
+    case 'cancelled': return 'Stopped.';
+    default: return 'Claude couldn’t complete part of the check (' + code + ').';
+  }
+}
+const FATAL = new Set(['not_granted','sampling_disabled','session_expired','rate_limited','not_declared','capability_disabled','capability_removed']);
+async function askJson(prompt){
+  return state.sample.json(prompt, {modelTier:'default', signal: state.ctl.signal});
+}
+async function pool(tasks, limit, onFatal){
+  let i = 0, stop = false;
+  const worker = async () => {
+    while (!stop && !state.ctl.signal.aborted){
+      const idx = i++; if (idx >= tasks.length) return;
+      try { await tasks[idx](); }
+      catch(e){
+        const code = e && e.code;
+        if (code === 'cancelled'){ stop = true; return; }
+        if (FATAL.has(code)){ stop = true; onFatal(e); return; }
+      }
+    }
+  };
+  await Promise.all(Array.from({length:limit}, worker));
+}
+function ctxLine(){
+  const s = state.settings;
+  return 'Awarding body: ' + s.body + (s.qual ? '. Qualification: ' + s.qual : '') + (s.notes ? '. Centre context: ' + s.notes : '') + '.';
+}
+
+/* phase 1: requirements from the specification */
+function specPrompt(text, i, n){
+  const s = state.settings;
+  const cats = Object.keys(CATS).filter(k => s.cats[k]);
+  const gran = s.gran === 'ac'
+    ? 'For content, create one requirement per assessment criterion (AC).'
+    : 'For content, create one requirement per learning outcome (LO), naming its assessment criteria (AC references) inside the text rather than listing each AC separately.';
+  return 'You are an experienced Internal Quality Assurer in UK further education and skills. Extract the verifiable requirements from the following extract (part ' + (i+1) + ' of ' + n + ') of an awarding body specification. ' + ctxLine() + '\n\n' +
+  'A requirement is something a centre’s scheme of work, assessment plan or quality assurance paperwork can be checked against. Categories to extract (use these keys only): ' + cats.map(k => k + ' = ' + CATS[k]).join('; ') + '.\n' +
+  gran + ' Also extract: mandatory/optional unit and credit rules, GLH/TQT/minimum delivery time, mandated assessment methods and evidence rules, grading and resit rules, simulation or witness rules, assessor and IQA qualification requirements, sampling and standardisation expectations, resource and workshop requirements, as far as they appear in the extract.\n' +
+  'Skip contact details, marketing text, general definitions and anything that is not an obligation or a specified content item. Do not invent anything that is not in the extract. Each "text" must be self-contained (mention the unit and the key content or numbers) and no longer than 220 characters. Return at most 40 items.\n\n' +
+  'Reply with only a JSON array. Each item: {"unit":"unit number and title, or General","ref":"e.g. LO2 (AC 2.1-2.4), Section 4.2","category":"' + cats.join('|') + '","text":"the requirement","mandatory":true}. If the extract has no requirements, reply [].\n\n' +
+  'EXTRACT:\n' + text;
+}
+async function extractChunk(text, i, n, depth){
+  try{
+    const r = await askJson(specPrompt(text, i, n));
+    const arr = Array.isArray(r) ? r : (r && Array.isArray(r.requirements) ? r.requirements : []);
+    return arr;
+  }catch(e){
+    if (e && e.code === 'invalid_json' && depth < 1 && text.length > 3000){
+      const mid = text.indexOf('\n', Math.floor(text.length / 2));
+      const a = await extractChunk(text.slice(0, mid), i, n, depth + 1);
+      const b = await extractChunk(text.slice(mid), i, n, depth + 1);
+      return a.concat(b);
+    }
+    throw e;
+  }
+}
+function normaliseReqs(lists){
+  const seen = new Set(); const out = [];
+  for (const arr of lists){
+    for (const r of (arr || [])){
+      if (!r || typeof r.text !== 'string' || r.text.trim().length < 8) continue;
+      const cat = CATS[r.category] ? r.category : 'content';
+      const key = (String(r.unit||'') + '|' + String(r.ref||'') + '|' + r.text.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,80));
+      if (seen.has(key)) continue; seen.add(key);
+      out.push({id:'R' + String(out.length + 1).padStart(3,'0'), unit:String(r.unit || 'General').trim() || 'General', ref:String(r.ref || '').trim(),
+        category:cat, text:r.text.trim(), mandatory:r.mandatory !== false,
+        status:'unchecked', confidence:'', evidence:'', gap:'', action:'', docs:[], override:null, note:''});
+    }
+  }
+  return out;
+}
+
+/* phase 2: test requirements against evidence */
+function evidenceSetup(){
+  const ev = state.docs.filter(d => d.role !== 'spec' && d.text);
+  ev.forEach((d,i) => d.label = 'D' + (i+1));
+  const total = ev.reduce((a,d) => a + d.text.length, 0);
+  const chunks = []; ev.forEach(d => chunks.push(...chunkEvidence(d, 1400)));
+  const df = new Map(); chunks.forEach(c => { c.toks = tok(c.text); c.toks.forEach(t => df.set(t, (df.get(t)||0) + 1)); });
+  return {ev, total, chunks, df, full: total <= FULL_EVIDENCE_LIMIT};
+}
+function evidenceText(E, batch){
+  const head = E.ev.map(d => d.label + ' = ' + ROLE_NAME[d.role] + ' (' + d.name + ')').join('\n');
+  if (E.full){
+    return head + '\n\n' + E.ev.map(d => '--- ' + d.label + ' · ' + ROLE_NAME[d.role] + ' · ' + d.name + ' ---\n' + d.text).join('\n\n');
+  }
+  const N = E.chunks.length, pick = new Map();
+  for (const r of batch){
+    const q = tok(r.unit + ' ' + r.ref + ' ' + r.text);
+    const scored = E.chunks.map((c, idx) => {
+      let s = 0; for (const t of q) if (c.toks.includes(t)) s += Math.log(1 + N / (E.df.get(t) || 1));
+      return [s, idx];
+    }).filter(x => x[0] > 0).sort((a,b) => b[0] - a[0]).slice(0, 5);
+    scored.forEach(([s, idx]) => pick.set(idx, (pick.get(idx) || 0) + s));
+  }
+  E.ev.forEach(d => { const idx = E.chunks.findIndex(c => c.doc === d.label); if (idx >= 0) pick.set(idx, (pick.get(idx) || 0) + 0.5); });
+  const chosen = [...pick.entries()].sort((a,b) => b[1] - a[1]).slice(0, 30).map(x => x[0]).sort((a,b) => a - b);
+  let lastDoc = '';
+  const parts = chosen.map(i => { const c = E.chunks[i]; const h = (c.doc !== lastDoc ? '--- ' + c.doc + ' ---\n' : ''); lastDoc = c.doc; return h + '[' + c.doc + (c.loc ? ' ' + c.loc : '') + ']\n' + c.text; });
+  return head + '\n\nExcerpts selected as most relevant to these requirements (the documents are longer than shown; if an expected item is not in the excerpts, treat it as not evidenced):\n\n' + parts.join('\n\n');
+}
+function checkPrompt(E, batch){
+  const supplied = new Set(E.ev.map(d => d.role));
+  const notSupplied = ['sow','assess','qa'].filter(r => !supplied.has(r)).map(r => ROLE_NAME[r]);
+  return 'You are an experienced Internal Quality Assurer auditing a UK vocational centre’s paperwork against an awarding body specification. ' + ctxLine() + '\n\n' +
+  'Test each requirement below against the documents supplied. Rules:\n' +
+  '- "met": the documents explicitly show the requirement is satisfied. Be strict; implied or assumed coverage is not met.\n' +
+  '- "partial": some but not all of the requirement is evidenced (for example some assessment criteria, a method but no timing, fewer hours than required).\n' +
+  '- "gap": a supplied document type that should evidence this does not, or contradicts it.\n' +
+  '- "unverifiable": the requirement could only be evidenced in material not supplied (learner work, registers, certificates, staff CVs, records). ' + (notSupplied.length ? 'No document of these types was supplied: ' + notSupplied.join(', ') + '. Requirements that depend on them are "unverifiable", not "gap".' : '') + '\n' +
+  'For "evidence", say where it is met using the document label and location (for example "D1 Page 4, week 6"), with a very short quote or paraphrase. For "gap" say exactly what is missing or wrong. For "action" give one specific corrective action; leave gap and action empty when met. Each text field is at most 300 characters.\n\n' +
+  'Reply with only a JSON array with one object per requirement, in the same order: {"id":"R001","status":"met|partial|gap|unverifiable","confidence":"high|medium|low","evidence":"","gap":"","action":"","docs":["D1"]}\n\n' +
+  'REQUIREMENTS:\n' + batch.map(r => r.id + ' | ' + r.unit + ' | ' + r.ref + ' | ' + CATS[r.category] + ' | ' + r.text).join('\n') + '\n\nDOCUMENTS:\n' + evidenceText(E, batch);
+}
+function applyChecks(E, batch, arr){
+  const byId = new Map((Array.isArray(arr) ? arr : []).filter(x => x && x.id).map(x => [String(x.id).trim(), x]));
+  const labelName = new Map(E.ev.map(d => [d.label, d.label + ' ' + ROLE_NAME[d.role]]));
+  for (const r of batch){
+    const x = byId.get(r.id); if (!x) continue;
+    const st = String(x.status || '').toLowerCase();
+    r.status = ['met','partial','gap','unverifiable'].includes(st) ? st : 'unchecked';
+    r.confidence = ['high','medium','low'].includes(String(x.confidence).toLowerCase()) ? String(x.confidence).toLowerCase() : '';
+    r.evidence = String(x.evidence || ''); r.gap = String(x.gap || ''); r.action = String(x.action || '');
+    r.docs = (Array.isArray(x.docs) ? x.docs : []).map(d => labelName.get(String(d)) || String(d));
+  }
+}
+async function checkBatch(E, batch, depth){
+  try{
+    const arr = await askJson(checkPrompt(E, batch));
+    applyChecks(E, batch, arr);
+  }catch(e){
+    if (e && e.code === 'invalid_json' && depth < 1 && batch.length > 1){
+      const m = Math.ceil(batch.length / 2);
+      await checkBatch(E, batch.slice(0, m), depth + 1); await checkBatch(E, batch.slice(m), depth + 1);
+    } else throw e;
+  }
+}
+async function phaseCheck(onProgress){
+  const E = evidenceSetup();
+  const todo = state.reqs.filter(r => r.status === 'unchecked');
+  const size = E.full ? 8 : 10; const batches = [];
+  for (let i = 0; i < todo.length; i += size) batches.push(todo.slice(i, i + size));
+  let done = 0, fatal = null;
+  onProgress(0, batches.length);
+  await pool(batches.map(b => async () => { await checkBatch(E, b, 0); done++; onProgress(done, batches.length); }), 2, e => { fatal = e; });
+  return {fatal, batches: batches.length, done};
+}
+
+/* phase 3: cross-document checks and priorities */
+function crossPrompt(){
+  const ev = state.docs.filter(d => d.role !== 'spec' && d.text);
+  const counts = countStatuses();
+  const key = state.reqs.filter(r => r.category !== 'content').slice(0, 70).map(r => '- [' + r.id + '] ' + r.unit + ' ' + r.ref + ': ' + r.text);
+  const issues = state.reqs.filter(r => ['gap','partial'].includes(r.status)).slice(0, 45).map(r => '- [' + r.id + '] (' + r.status + ') ' + r.unit + ' ' + r.ref + ': ' + r.text + ' | missing: ' + trunc(r.gap, 160));
+  let budget = 150000;
+  const docs = ev.sort((a,b) => (a.role === 'qa') - (b.role === 'qa')).map(d => {
+    const take = Math.max(8000, Math.min(d.text.length, Math.floor(budget / Math.max(1, ev.length))));
+    const t = d.text.slice(0, take); budget -= t.length;
+    return '--- ' + ROLE_NAME[d.role] + ' · ' + d.name + (t.length < d.text.length ? ' (truncated)' : '') + ' ---\n' + t;
+  });
+  return 'You are an experienced Internal Quality Assurer in UK further education. ' + ctxLine() + '\n\n' +
+  'Per-requirement results so far: ' + counts.met + ' met, ' + counts.partial + ' partial, ' + counts.gap + ' gaps, ' + counts.unverifiable + ' not verifiable, out of ' + state.reqs.length + '.\n\n' +
+  'Do three things.\n1. Cross-check the supplied documents against each other and the specification: delivery hours against GLH/TQT; assessments scheduled before the content is taught; units or learning outcomes in the scheme missing from the assessment schedule or the reverse; IQA sampling that does not cover the assessments scheduled; clashes or unrealistic timings; inconsistent group names, assessor names, dates, version numbers, qualification titles or awarding body names; out-of-date specification references. Report only real, specific findings with the evidence, not generic advice.\n' +
+  '2. Give the ten most important actions, ranked, each tied to the findings.\n3. Note up to five things done well.\n\n' +
+  'Reply with only a JSON object: {"headline":"two or three plain sentences summarising overall compliance and the biggest risk","checks":[{"title":"","severity":"high|medium|low","detail":"","documents":["Scheme of work"],"action":""}],"priorities":[{"action":"","why":""}],"strengths":[""]}\n\n' +
+  'KEY SPECIFICATION REQUIREMENTS (non-content):\n' + (key.join('\n') || '(none extracted)') + '\n\nMAIN GAPS AND PARTIALS FOUND:\n' + (issues.join('\n') || '(none)') + '\n\nDOCUMENTS:\n' + docs.join('\n\n');
+}
+async function phaseCross(){
+  const r = await askJson(crossPrompt());
+  if (!r || typeof r !== 'object') throw {code:'invalid_json'};
+  const arr = v => Array.isArray(v) ? v : [];
+  state.cross = {
+    headline: String(r.headline || ''),
+    checks: arr(r.checks).filter(c => c && c.title).map(c => ({title:String(c.title), severity:['high','medium','low'].includes(c.severity) ? c.severity : 'medium', detail:String(c.detail||''), documents:arr(c.documents).map(String), action:String(c.action||'')})),
+    priorities: arr(r.priorities).filter(p => p && p.action).map(p => ({action:String(p.action), why:String(p.why||'')})),
+    strengths: arr(r.strengths).map(String).filter(Boolean)
+  };
+}
+
+/* ---------- orchestration ---------- */
+function setStep(n, cls, text){
+  const li = $('#st' + n); li.className = cls; li.querySelector('span').textContent = text || '';
+}
+let timer = null;
+function startTimer(){ const t0 = Date.now(); clearInterval(timer); timer = setInterval(() => { const s = Math.floor((Date.now() - t0) / 1000); $('#elapsed').textContent = 'Elapsed ' + Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }, 1000); }
+
+async function runAudit(){
+  if (state.running || !state.sample) return;
+  state.running = true; state.lastError = ''; state.ctl = new AbortController();
+  state.reqs = []; state.cross = null;
+  const specText = state.docs.filter(d => d.role === 'spec' && d.text).map(d => '=== ' + d.name + ' ===\n' + d.text).join('\n\n');
+  const {chunks, total} = chunkLines(specText, SPEC_CHUNK, MAX_SPEC_CHUNKS);
+  const trimmedSpec = total > chunks.length;
+  ['1','2','3'].forEach(n => setStep(n, '', ''));
+  $('#foundCount').textContent = '';
+  setView('progress'); startTimer();
+  setStep(1, 'active', '0 of ' + chunks.length + ' sections read');
+
+  const results = new Array(chunks.length); let done = 0, fatal = null, failed = 0;
+  await pool(chunks.map((c, i) => async () => {
+    try{ results[i] = await extractChunk(c, i, chunks.length, 0); }
+    catch(e){ if (e && !FATAL.has(e.code) && e.code !== 'cancelled') failed++; throw e; }
+    done++; setStep(1, 'active', done + ' of ' + chunks.length + ' sections read');
+    $('#foundCount').textContent = fmtNum(results.flat().filter(Boolean).length) + ' requirements found so far';
+  }), 2, e => { fatal = e; });
+
+  state.reqs = normaliseReqs(results);
+  if (state.ctl.signal.aborted || (fatal && !state.reqs.length) || !state.reqs.length){
+    finishRun(fatal ? copyFor(fatal.code) : (state.ctl.signal.aborted ? 'Stopped before any requirements were extracted.' : 'No requirements could be extracted from the specification. Check the “Check what was read” preview to confirm the text was captured.'), false);
+    return;
+  }
+  setStep(1, fatal || failed ? 'error' : 'done', fmtNum(state.reqs.length) + ' requirements extracted' + (failed ? ' (' + failed + ' sections could not be read)' : '') + (trimmedSpec ? '. The specification is very long, so only the first ' + chunks.length + ' sections were used.' : ''));
+  $('#foundCount').textContent = fmtNum(state.reqs.length) + ' requirements found';
+
+  if (fatal){ state.lastError = copyFor(fatal.code); }
+  else {
+    setStep(2, 'active', 'Starting');
+    const r = await phaseCheck((d, n) => setStep(2, 'active', d + ' of ' + n + ' groups tested'));
+    if (r.fatal) state.lastError = copyFor(r.fatal.code);
+    const unc = state.reqs.filter(q => q.status === 'unchecked').length;
+    setStep(2, unc ? 'error' : 'done', unc ? unc + ' requirements not checked' : 'All requirements tested');
+    if (!state.ctl.signal.aborted && !r.fatal && state.reqs.some(q => q.status !== 'unchecked')){
+      setStep(3, 'active', 'Working');
+      try{ await phaseCross(); setStep(3, 'done', 'Complete'); }
+      catch(e){ setStep(3, 'error', 'Could not complete this step'); if (e && FATAL.has(e.code)) state.lastError = copyFor(e.code); }
+    }
+  }
+  finishRun(null, true);
+}
+function finishRun(msg, ok){
+  clearInterval(timer); state.running = false;
+  if (!state.reqs.length){
+    setView('setup'); showNotice(msg || 'The check did not complete.', true); updateReady(); return;
+  }
+  state.meta = {date: today(), body: state.settings.body, qual: state.settings.qual,
+    docs: state.docs.map(d => ({name:d.name, role:d.role, chars:d.text.length, note:d.note}))};
+  saveState(); renderResults(); setView('results'); updateReady();
+}
+async function recheck(){
+  if (state.running || !state.sample) return;
+  const ev = state.docs.filter(d => d.role !== 'spec' && d.text);
+  if (!ev.length){ showNotice('Add the documents again under “Edit documents” to re-check the remaining requirements.', true); setView('setup'); return; }
+  state.running = true; state.ctl = new AbortController(); state.lastError = '';
+  ['1','2','3'].forEach(n => setStep(n, '', '')); setStep(1,'done','Specification already read'); setStep(2,'active','Starting');
+  $('#foundCount').textContent = fmtNum(state.reqs.length) + ' requirements'; setView('progress'); startTimer();
+  const r = await phaseCheck((d, n) => setStep(2, 'active', d + ' of ' + n + ' groups tested'));
+  if (r.fatal) state.lastError = copyFor(r.fatal.code);
+  const unc = state.reqs.filter(q => q.status === 'unchecked').length;
+  setStep(2, unc ? 'error' : 'done', unc ? unc + ' requirements still not checked' : 'All requirements tested');
+  if (!unc && !r.fatal && !state.ctl.signal.aborted){
+    setStep(3,'active','Working');
+    try{ await phaseCross(); setStep(3,'done','Complete'); }catch(e){ setStep(3,'error','Could not complete this step'); }
+  }
+  finishRun(null, true);
+}
+
+/* ---------- results ---------- */
+const effective = r => r.override || r.status;
+function countStatuses(){
+  const c = {met:0, partial:0, gap:0, unverifiable:0, unchecked:0};
+  state.reqs.forEach(r => { c[effective(r)]++; }); return c;
+}
+function pctText(){
+  const c = countStatuses(); const denom = c.met + c.partial + c.gap;
+  if (!denom) return {pct:null, c};
+  return {pct: Math.round((c.met + 0.5 * c.partial) / denom * 100), c};
+}
+const mosaicCells = new Map();
+function renderResults(){
+  const s = state.settings;
+  $('#resSub').textContent = [state.meta && state.meta.qual ? state.meta.qual : '', state.meta ? state.meta.body : s.body, state.meta ? state.meta.date : today(), fmtNum(state.reqs.length) + ' requirements'].filter(Boolean).join(' · ');
+  const hl = state.cross && state.cross.headline ? state.cross.headline : localHeadline();
+  $('#resHeadline').textContent = hl;
+
+  const mos = $('#mosaic'); mos.replaceChildren(); mosaicCells.clear();
+  let lastUnit = null;
+  state.reqs.forEach(r => {
+    const b = el('button',{type:'button',role:'listitem',class:'s-' + effective(r) + (lastUnit !== null && r.unit !== lastUnit ? ' sep' : ''),
+      title:r.id + ' · ' + STATUS[effective(r)].label + ' · ' + trunc(r.text, 90),'aria-label':r.id + ', ' + STATUS[effective(r)].label + ': ' + trunc(r.text, 90),
+      onclick:() => openReq(r.id)});
+    lastUnit = r.unit; mosaicCells.set(r.id, b); mos.append(b);
+  });
+  renderLegend(); updateSummary();
+
+  // filters
+  const catSel = $('#fCat'); catSel.replaceChildren(el('option',{value:''},'All areas'));
+  Object.entries(CATS).filter(([k]) => state.reqs.some(r => r.category === k)).forEach(([k,v]) => catSel.append(el('option',{value:k},v)));
+  const unitSel = $('#fUnit'); unitSel.replaceChildren(el('option',{value:''},'All units'));
+  [...new Set(state.reqs.map(r => r.unit))].forEach(u => unitSel.append(el('option',{value:u}, trunc(u, 70))));
+  state.filter = {status:null, cat:'', unit:'', q:''}; $('#fQ').value = '';
+  renderMatrix(); renderCross(); renderActions(); renderDocsTab(); selectTab('matrix');
+}
+function localHeadline(){
+  const {pct, c} = pctText();
+  if (pct === null) return 'No requirements could be tested against the documents supplied.';
+  return 'Of the requirements that could be tested, ' + c.met + ' are fully evidenced, ' + c.partial + ' partly, and ' + c.gap + ' are gaps.';
+}
+function renderLegend(){
+  const lg = $('#legend'); lg.replaceChildren();
+  Object.keys(STATUS).forEach(k => {
+    const b = el('button',{type:'button',class:'lg s-' + k,'aria-pressed':'false','data-k':k,onclick:() => {
+      state.filter.status = state.filter.status === k ? null : k; syncLegend(); selectTab('matrix'); renderMatrix();
+    }}, el('i'), STATUS[k].label + ' ', el('b',{'data-n':k},'0'));
+    lg.append(b);
+  });
+}
+function syncLegend(){ document.querySelectorAll('#legend .lg').forEach(b => b.setAttribute('aria-pressed', String(state.filter.status === b.dataset.k))); }
+function updateSummary(){
+  const {pct, c} = pctText();
+  const p = $('#resPct'); p.replaceChildren();
+  if (pct === null) p.append('Nothing tested yet');
+  else p.append(el('b',{}, pct + '%'), ' weighted coverage of testable requirements');
+  document.querySelectorAll('#legend [data-n]').forEach(n => { n.textContent = c[n.dataset.n]; });
+  state.reqs.forEach(r => { const b = mosaicCells.get(r.id); if (b){ const sep = b.classList.contains('sep'); b.className = 's-' + effective(r) + (sep ? ' sep' : ''); } });
+  const unc = c.unchecked, ban = $('#uncheckedBanner');
+  if (unc){
+    ban.hidden = false; ban.replaceChildren(el('span',{}, fmtNum(unc) + ' requirement' + (unc === 1 ? ' was' : 's were') + ' not checked.' + (state.lastError ? ' ' + state.lastError : '')),
+      el('button',{class:'btn small',type:'button',onclick:recheck},'Re-check unchecked'));
+  } else ban.hidden = true;
+}
+function openReq(id){
+  state.filter = {status:null, cat:'', unit:'', q:''}; $('#fQ').value = ''; $('#fCat').value = ''; $('#fUnit').value = ''; syncLegend();
+  selectTab('matrix'); renderMatrix();
+  const d = document.getElementById('rq-' + id); if (d){ d.open = true; d.scrollIntoView({block:'center'}); }
+}
+function renderMatrix(){
+  const f = state.filter; const q = f.q.trim().toLowerCase();
+  const list = state.reqs.filter(r => (!f.status || effective(r) === f.status) && (!f.cat || r.category === f.cat) && (!f.unit || r.unit === f.unit)
+    && (!q || (r.id + ' ' + r.unit + ' ' + r.ref + ' ' + r.text + ' ' + r.evidence + ' ' + r.gap).toLowerCase().includes(q)));
+  $('#fCount').textContent = 'Showing ' + fmtNum(list.length) + ' of ' + fmtNum(state.reqs.length);
+  const host = $('#matrixList'); host.replaceChildren();
+  if (!list.length){ host.append(el('div',{class:'empty'},'No requirements match these filters.')); return; }
+  let unit = null, wrap = null;
+  list.forEach(r => {
+    if (r.unit !== unit){ unit = r.unit; host.append(el('h3',{class:'unit-h'}, unit)); wrap = el('div',{class:'reqs'}); host.append(wrap); }
+    wrap.append(reqRow(r));
+  });
+}
+function reqRow(r){
+  const stamp = el('span',{class:'stamp s-' + effective(r)}, STATUS[effective(r)].icon + ' ' + STATUS[effective(r)].label);
+  const d = el('details',{class:'rq s-' + effective(r),id:'rq-' + r.id});
+  const sel = el('select',{'aria-label':'Final status for ' + r.id}, el('option',{value:''},'Keep: ' + STATUS[r.status].label),
+    ...['met','partial','gap','unverifiable'].map(k => el('option',{value:k},'Set to ' + STATUS[k].label)));
+  sel.value = r.override || '';
+  sel.addEventListener('change', () => {
+    r.override = sel.value || null; const e = effective(r);
+    stamp.className = 'stamp s-' + e; stamp.textContent = STATUS[e].icon + ' ' + STATUS[e].label; d.className = 'rq s-' + e;
+    updateSummary(); saveState();
+  });
+  const note = el('textarea',{rows:2,placeholder:'Reviewer note (included in the exports)','aria-label':'Reviewer note for ' + r.id}); note.value = r.note || '';
+  note.addEventListener('input', () => { r.note = note.value; saveState(); });
+  d.append(
+    el('summary',{}, stamp, el('span',{class:'rq-ref'}, r.id + (r.ref ? ' · ' + r.ref : '')), el('span',{class:'rq-text'}, r.text)),
+    el('div',{class:'rq-body'},
+      el('div',{}, el('h4',{},'Where it is evidenced'), el('p',{}, r.evidence || 'Nothing recorded.'), r.docs.length ? el('p',{class:'rq-meta'}, r.docs.join(', ')) : null),
+      el('div',{}, el('h4',{},'What is missing'), el('p',{}, r.gap || 'Nothing recorded.')),
+      el('div',{}, el('h4',{},'Suggested action'), el('p',{}, r.action || 'None.'), el('p',{class:'rq-meta'}, CATS[r.category] + (r.mandatory ? '' : ' · optional') + (r.confidence ? ' · ' + r.confidence + ' confidence' : ''))),
+      el('div',{class:'rq-review'}, el('label',{class:'f'}, 'Your judgement', sel), note)));
+  return d;
+}
+function renderCross(){
+  const h = $('#tabCross'); h.replaceChildren();
+  const c = state.cross;
+  if (!c || !c.checks.length){ h.append(el('div',{class:'empty'}, c ? 'No cross-document issues were reported.' : 'The cross-document step did not complete, so there are no findings here.')); return; }
+  c.checks.forEach(k => h.append(el('div',{class:'card sev-' + k.severity},
+    el('div',{class:'tag'}, ({high:'High priority',medium:'Medium priority',low:'Low priority'})[k.severity] + (k.documents.length ? ' · ' + k.documents.join(', ') : '')),
+    el('h3',{}, k.title), el('p',{}, k.detail), k.action ? el('p',{}, el('b',{},'Action: '), k.action) : null)));
+}
+function renderActions(){
+  const h = $('#tabActions'); h.replaceChildren();
+  const c = state.cross;
+  if (c && c.priorities.length){
+    h.append(el('h2',{style:'margin-bottom:12px'},'Priority actions'),
+      el('ol',{class:'prio'}, c.priorities.map(p => el('li',{}, el('b',{}, p.action), p.why ? el('div',{class:'doc-meta'}, p.why) : null))));
+  } else {
+    const gaps = state.reqs.filter(r => effective(r) === 'gap' && r.action).slice(0, 10);
+    h.append(el('h2',{style:'margin-bottom:12px'},'Actions from the gaps found'),
+      gaps.length ? el('ol',{class:'prio'}, gaps.map(r => el('li',{}, el('b',{}, r.action), el('div',{class:'doc-meta'}, r.id + ' · ' + r.unit)))) : el('div',{class:'empty'},'No actions to list.'));
+  }
+  if (c && c.strengths.length) h.append(el('h2',{style:'margin:28px 0 12px'},'Done well'), el('ul',{}, c.strengths.map(s => el('li',{}, s))));
+}
+function renderDocsTab(){
+  const h = $('#tabDocs'); h.replaceChildren();
+  const docs = state.meta ? state.meta.docs : [];
+  h.append(el('h2',{style:'margin-bottom:12px'},'Documents reviewed'),
+    docs.length ? el('ul',{class:'doclist'}, docs.map(d => el('li',{class:'doc'}, el('div',{class:'doc-name'}, d.name), el('div',{class:'doc-meta'}, ROLE_NAME[d.role] + ' · ' + fmtNum(d.chars) + ' characters'), d.note ? el('div',{class:'doc-warn'}, d.note) : null))) : el('p',{class:'fine'},'No document list is stored with this audit.'),
+    el('h2',{style:'margin:28px 0 12px'},'How the check works'),
+    el('p',{class:'fine'},'The specification is read in sections and turned into a list of testable requirements. Each requirement is then tested against the text of your documents, and the documents are also compared with each other. Requirements that need material you haven’t supplied, such as learner work, registers or assessor CVs, are marked “Can’t verify” rather than as gaps.'),
+    el('p',{class:'fine',style:'margin-top:10px'},'The weighted coverage figure counts met requirements in full and partial ones as half, and leaves out those that can’t be verified or weren’t checked. Treat it as a guide, and use the “Your judgement” control on any requirement to correct a finding. Scanned PDFs and text inside images can’t be read.'));
+}
+function selectTab(name){
+  document.querySelectorAll('#tabs .tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
+  ['Matrix','Cross','Actions','Docs'].forEach(n => { $('#tab' + n).hidden = n.toLowerCase() !== name; });
+}
+
+/* ---------- exports ---------- */
+const csvCell = v => '"' + String(v == null ? '' : v).replace(/"/g,'""') + '"';
+function buildCsv(){
+  const head = ['ID','Unit','Reference','Area','Mandatory','Requirement','AI status','Final status','Confidence','Evidence','Gap','Suggested action','Documents','Reviewer note'];
+  const rows = state.reqs.map(r => [r.id,r.unit,r.ref,CATS[r.category],r.mandatory ? 'Yes' : 'No',r.text,STATUS[r.status].label,STATUS[effective(r)].label,r.confidence,r.evidence,r.gap,r.action,r.docs.join('; '),r.note]);
+  return '\uFEFF' + [head, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n');
+}
+function buildReport(){
+  const {pct, c} = pctText();
+  const col = {met:'#1D7A4C',partial:'#8A5A00',gap:'#B3261E',unverifiable:'#556275',unchecked:'#8A94A5'};
+  const order = {gap:0, partial:1, unchecked:2, unverifiable:3, met:4};
+  const rows = [...state.reqs].sort((a,b) => order[effective(a)] - order[effective(b)]).map(r => {
+    const e = effective(r);
+    return '<tr><td style="color:' + col[e] + ';font-weight:600;white-space:nowrap">' + STATUS[e].icon + ' ' + esc(STATUS[e].label) + '</td><td>' + esc(r.id) + '<br><small>' + esc(r.unit) + '<br>' + esc(r.ref) + '</small></td><td>' + esc(r.text) +
+      (r.evidence ? '<br><small><b>Evidence:</b> ' + esc(r.evidence) + '</small>' : '') + (r.gap ? '<br><small><b>Missing:</b> ' + esc(r.gap) + '</small>' : '') +
+      (r.action ? '<br><small><b>Action:</b> ' + esc(r.action) + '</small>' : '') + (r.note ? '<br><small><b>Reviewer note:</b> ' + esc(r.note) + '</small>' : '') + '</td></tr>';
+  }).join('');
+  const x = state.cross;
+  const checks = x && x.checks.length ? '<h2>Cross-document findings</h2>' + x.checks.map(k => '<div class="c"><b>' + esc(k.title) + '</b> <small>(' + esc(k.severity) + (k.documents.length ? ', ' + esc(k.documents.join(', ')) : '') + ')</small><p>' + esc(k.detail) + '</p>' + (k.action ? '<p><b>Action:</b> ' + esc(k.action) + '</p>' : '') + '</div>').join('') : '';
+  const pri = x && x.priorities.length ? '<h2>Priority actions</h2><ol>' + x.priorities.map(p => '<li><b>' + esc(p.action) + '</b>' + (p.why ? '<br><small>' + esc(p.why) + '</small>' : '') + '</li>').join('') + '</ol>' : '';
+  const docs = (state.meta ? state.meta.docs : []).map(d => '<li>' + esc(d.name) + ' <small>(' + esc(ROLE_NAME[d.role]) + ')</small></li>').join('');
+  return '<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><title>Spec Check report</title><style>body{font:14px/1.5 system-ui,Segoe UI,Arial,sans-serif;color:#142033;max-width:980px;margin:32px auto;padding:0 20px}h1{font-size:26px;margin:0 0 4px}h2{margin:28px 0 10px;font-size:19px}table{border-collapse:collapse;width:100%}td,th{border-top:1px solid #D3DAE5;padding:8px;vertical-align:top;text-align:left}small{color:#4B586B}.c{border-left:4px solid #8A5A00;padding:4px 12px;margin:10px 0}@media print{body{margin:0}}</style></head><body>' +
+    '<h1>Compliance check report</h1><p><small>' + esc([state.meta && state.meta.qual, state.meta ? state.meta.body : state.settings.body, state.meta ? state.meta.date : today()].filter(Boolean).join(' · ')) + '</small></p>' +
+    '<p>' + esc(x && x.headline ? x.headline : localHeadline()) + '</p>' +
+    '<p><b>' + c.met + '</b> met · <b>' + c.partial + '</b> partial · <b>' + c.gap + '</b> gaps · <b>' + c.unverifiable + '</b> not verifiable · <b>' + c.unchecked + '</b> not checked' + (pct !== null ? ' · weighted coverage ' + pct + '%' : '') + '</p>' +
+    pri + checks + '<h2>Requirement matrix</h2><table><thead><tr><th>Status</th><th>Reference</th><th>Requirement and findings</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<h2>Documents reviewed</h2><ul>' + docs + '</ul><p><small>AI-assisted check prepared to support professional IQA judgement. Verify findings against the source documents before relying on them.</small></p></body></html>';
+}
+async function saveFile(filename, data){
+  let dl = null; try { dl = await window.claude.use('downloads'); } catch(e) {}
+  if (dl){
+    try { await dl.save({filename, data}); return; }
+    catch(e){ if (e && e.code === 'declined') return; if (e && e.code !== 'unavailable' && e.code !== 'not_granted' && e.code !== 'capability_disabled' && e.code !== 'capability_removed') { showModal(filename, data); return; } }
+  }
+  showModal(filename, data);
+}
+function showModal(title, text){ $('#modalTitle').textContent = title; $('#modalText').value = text; $('#modal').hidden = false; $('#modalText').focus(); $('#modalText').select(); }
+
+/* ---------- persistence ---------- */
+let saveT = null;
+function saveState(){
+  clearTimeout(saveT);
+  saveT = setTimeout(() => {
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify({ts:Date.now(), settings:state.settings, reqs:state.reqs, cross:state.cross, meta:state.meta})); }catch(e){}
+  }, 300);
+}
+function loadSaved(){
+  try{ const raw = localStorage.getItem(STORE_KEY); if (!raw) return null; const o = JSON.parse(raw); return o && Array.isArray(o.reqs) && o.reqs.length ? o : null; }catch(e){ return null; }
+}
+
+/* ---------- schedule builder ---------- */
+const DOWS = [[1,'Mon'],[2,'Tue'],[3,'Wed'],[4,'Thu'],[5,'Fri']];
+const SCHED_KEY = 'spec-check-sched-v1';
+const TYPE_LABEL = {main:'Main assessment', mock:'Mock', resit:'Resit'};
+const TYPE_LETTER = {main:'A', mock:'M', resit:'R'};
+const B = {
+  calDocs:[], year:'2026/27', calNotes:'', terms:[], closures:[],
+  groups:[{name:'Group 1', days:[1,2,3,4,5]}], sessionHours:6, assessments:[], nextA:1,
+  params:{mock:true, mockGap:3, resit:true, resitMode:'each', resitGap:1, resitWeeks:1, turnaround:10, notice:2, iqa:true, iqaDays:5, minWeek:3, maxPerWeek:2, deadline:'', notes:''},
+  ready:null, why:{}, result:null, busy:false, groupView:0
+};
+const bRef = {};
+
+const DT = {
+  p(iso){ const a = iso.split('-').map(Number); return new Date(Date.UTC(a[0], a[1]-1, a[2])); },
+  s(d){ return d.toISOString().slice(0,10); },
+  add(iso, n){ const d = DT.p(iso); d.setUTCDate(d.getUTCDate() + n); return DT.s(d); },
+  dow(iso){ return DT.p(iso).getUTCDay(); },
+  valid(iso){ return /^\d{4}-\d{2}-\d{2}$/.test(iso || '') && !isNaN(DT.p(iso)); },
+  f(iso){ return DT.p(iso).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}); },
+  fs(iso){ return DT.p(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'}); },
+  mon(iso){ const d = DT.p(iso); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); return DT.s(d); }
+};
+
+function bSave(){
+  try{ localStorage.setItem(SCHED_KEY, JSON.stringify({year:B.year, calNotes:B.calNotes, terms:B.terms, closures:B.closures, groups:B.groups, sessionHours:B.sessionHours, assessments:B.assessments, nextA:B.nextA, params:B.params, ready:B.ready, why:B.why})); }catch(e){}
+}
+function bLoad(){
+  try{
+    const o = JSON.parse(localStorage.getItem(SCHED_KEY) || 'null'); if (!o) return;
+    Object.assign(B, {year:o.year || B.year, calNotes:o.calNotes || '', terms:o.terms || [], closures:o.closures || [], groups:(o.groups && o.groups.length) ? o.groups : B.groups,
+      sessionHours:o.sessionHours || 6, assessments:o.assessments || [], nextA:o.nextA || 1, ready:o.ready || null, why:o.why || {}});
+    Object.assign(B.params, o.params || {});
+    if (B.ready && B.assessments.length && B.terms.length) B.result = buildSchedule(new Map(B.ready));
+  }catch(e){}
+}
+
+/* calendar logic */
+const inTerm = iso => B.terms.some(t => DT.valid(t.start) && DT.valid(t.end) && iso >= t.start && iso <= t.end);
+const closedOn = iso => B.closures.find(c => DT.valid(c.start) && iso >= c.start && iso <= (DT.valid(c.end) ? c.end : c.start));
+const openDay = iso => { const w = DT.dow(iso); return w >= 1 && w <= 5 && inTerm(iso) && !closedOn(iso); };
+const groupDay = (g, iso) => openDay(iso) && g.days.includes(DT.dow(iso));
+function prevOpen(iso){ let i = 0; while (!openDay(iso) && i < 40){ iso = DT.add(iso, -1); i++; } return iso; }
+function addOpen(iso, n){ let c = 0, i = 0; while (c < n && i < 500){ iso = DT.add(iso, 1); i++; if (openDay(iso)) c++; } return iso; }
+function calWeeks(){
+  const ts = B.terms.filter(t => DT.valid(t.start) && DT.valid(t.end) && t.start <= t.end);
+  if (!ts.length) return [];
+  const first = DT.mon(ts.map(t => t.start).sort()[0]); const last = ts.map(t => t.end).sort().slice(-1)[0];
+  const weeks = []; let m = first, n = 0;
+  while (m <= last && weeks.length < 80){
+    const days = [0,1,2,3,4].map(i => DT.add(m, i));
+    const open = days.filter(openDay);
+    const teaching = open.length > 0 && B.groups.some(g => days.some(d => groupDay(g, d)));
+    const w = {mon:m, open, teaching, idx:null, term:'', note:[...new Set(days.map(closedOn).filter(Boolean).map(c => c.name))].join(', ')};
+    if (teaching){ n++; w.idx = n; }
+    const anyDay = open[0] || days.find(d => ts.some(x => d >= x.start && d <= x.end));
+    const tt = anyDay && ts.find(x => anyDay >= x.start && anyDay <= x.end);
+    w.term = tt ? tt.name : '';
+    weeks.push(w); m = DT.add(m, 7);
+  }
+  return weeks;
+}
+function bDeadline(){
+  const teach = calWeeks().filter(w => w.teaching);
+  const ends = B.terms.filter(t => DT.valid(t.end)).map(t => t.end).sort();
+  const deadline = DT.valid(B.params.deadline) ? B.params.deadline : (ends[ends.length - 1] || '');
+  let dlIdx = 0; teach.forEach(w => { if (w.mon <= deadline) dlIdx = w.idx; });
+  return {deadline, dlIdx, teach};
+}
+
+/* scheduling engine */
+function buildSchedule(ready){
+  const P = B.params, weeks = calWeeks(), {deadline, dlIdx, teach} = bDeadline(), N = teach.length;
+  const byIdx = new Map(teach.map(w => [w.idx, w]));
+  const flags = [], events = [], load = new Map();
+  const items = B.assessments.filter(a => a.include && a.name.trim());
+  const sess = a => { const h = Number(a.hours); return h > 0 ? Math.max(1, Math.ceil(h / B.sessionHours)) : 1; };
+  const key = (g, i) => g.name + '|' + i;
+  const gDays = (g, w) => w.open.filter(d => g.days.includes(DT.dow(d)));
+  const wkIdx = iso => { const m = DT.mon(iso); const w = teach.find(x => x.mon >= m); return w ? w.idx : N + 1; };
+  const findWeek = (g, from, dir, lo, hi) => { for (let i = from; i >= lo && i <= hi; i += dir){ const w = byIdx.get(i); if (w && gDays(g, w).length && (load.get(key(g, i)) || 0) < P.maxPerWeek) return i; } return null; };
+  const takeDays = (g, idx, n) => { const out = []; for (let i = idx; i <= N && out.length < n; i++){ const w = byIdx.get(i); if (!w) continue; for (const d of gDays(g, w)){ out.push(d); if (out.length >= n) break; } } return out; };
+  const mark = (g, dates) => { new Set(dates.map(wkIdx)).forEach(i => load.set(key(g, i), (load.get(key(g, i)) || 0) + 1)); };
+  const notice = (from, floor) => { let n = prevOpen(DT.add(from, -7 * P.notice)); if (floor && n < floor) n = floor; return n; };
+  const mk = (type, g, a, dates) => ({group:g.name, aId:a.id, aName:a.name, unit:a.unit || '', method:a.method || '', type, from:dates[0], to:dates[dates.length - 1], dates, noticeBy:notice(dates[0]), resultsDue:'', iqaBy:'', flags:[]});
+  const winCache = new Map();
+  const windows = g => {
+    if (winCache.has(g.name)) return winCache.get(g.name);
+    const gw = teach.filter(w => w.idx <= dlIdx && gDays(g, w).length);
+    let groups;
+    if (P.resitMode === 'term'){ const m = new Map(); gw.forEach(w => { const k = w.term || '?'; if (!m.has(k)) m.set(k, []); m.get(k).push(w); }); groups = [...m.values()]; }
+    else groups = [gw];
+    const out = groups.filter(a => a.length).map(a => a.slice(-P.resitWeeks)).map(a => ({start:a[0].idx, end:a[a.length - 1].idx, dates:a.flatMap(w => gDays(g, w))}));
+    winCache.set(g.name, out); return out;
+  };
+  if (!N || !items.length) return {events, weeks, flags:['There are no teaching weeks or no assessments to schedule.'], deadline, dlIdx, N};
+
+  const order = items.map((a, i) => ({a, i, r:ready.get(a.id) || P.minWeek})).sort((x, y) => x.r - y.r || x.i - y.i);
+  for (const g of B.groups){
+    for (const {a, r} of order){
+      const n = sess(a);
+      const mi = findWeek(g, r, 1, P.minWeek, dlIdx);
+      if (mi == null){ flags.push(g.name + ': “' + a.name + '” could not be placed because no teaching weeks with space are left.'); continue; }
+      const mDates = takeDays(g, mi, n); mark(g, mDates);
+      const main = mk('main', g, a, mDates);
+      if (mi > r + 2) main.flags.push('Placed ' + (mi - r) + ' teaching weeks after the ideal week because earlier weeks were full or closed.');
+      main.resultsDue = addOpen(main.to, P.turnaround);
+      if (P.iqa) main.iqaBy = addOpen(main.resultsDue, P.iqaDays);
+      if (main.resultsDue > deadline) main.flags.push('Results are due after the deadline.');
+      if (B.why[a.id]) main.why = B.why[a.id];
+
+      if (P.mock){
+        const want = Math.max(P.minWeek, mi - P.mockGap);
+        let pi = findWeek(g, want, -1, P.minWeek, mi - 1); if (pi == null) pi = findWeek(g, want, 1, P.minWeek, mi - 1);
+        if (pi == null) flags.push(g.name + ': no room for a mock before “' + a.name + '”.');
+        else {
+          const dates = takeDays(g, pi, n); mark(g, dates);
+          const mock = mk('mock', g, a, dates);
+          mock.resultsDue = addOpen(mock.to, P.turnaround);
+          if (mi - pi < P.mockGap) mock.flags.push('Only ' + (mi - pi) + ' teaching week' + (mi - pi === 1 ? '' : 's') + ' before the main assessment, not ' + P.mockGap + '.');
+          if (mock.resultsDue > main.from) mock.flags.push('Mock feedback is due after the main assessment starts.');
+          events.push(mock);
+        }
+      }
+      events.push(main);
+
+      if (P.resit){
+        const earliest = wkIdx(DT.add(DT.mon(main.resultsDue), 7)) + Math.max(0, P.resitGap - 1);
+        let rs = null;
+        if (P.resitMode === 'each'){
+          const pi = findWeek(g, earliest, 1, earliest, dlIdx);
+          if (pi != null){
+            const dates = takeDays(g, pi, n); mark(g, dates);
+            const win = []; for (let i = pi; i <= Math.min(dlIdx, pi + P.resitWeeks - 1); i++){ const w = byIdx.get(i); if (w) win.push(...gDays(g, w)); }
+            rs = mk('resit', g, a, [...new Set([...dates, ...win])].sort());
+          }
+        } else {
+          const ws = windows(g); let w = ws.find(x => x.start >= earliest), late = false;
+          if (!w && ws.length){ w = ws[ws.length - 1]; late = true; }
+          if (w && w.dates.length){
+            rs = mk('resit', g, a, w.dates);
+            if (late) rs.flags.push('Results are due after the last resit window opens.');
+            else if (w.start - earliest > 8) rs.flags.push('Learners wait about ' + (w.start - earliest) + ' teaching weeks for this resit window.');
+          }
+        }
+        if (!rs) flags.push(g.name + ': no resit slot before the deadline for “' + a.name + '”.');
+        else {
+          rs.resultsDue = addOpen(rs.to, P.turnaround);
+          if (P.iqa) rs.iqaBy = addOpen(rs.resultsDue, P.iqaDays);
+          rs.noticeBy = notice(rs.from, main.resultsDue);
+          if (rs.resultsDue > deadline) rs.flags.push('Resit results are due after the deadline.');
+          events.push(rs);
+        }
+      }
+    }
+  }
+  events.sort((x, y) => x.from.localeCompare(y.from) || x.group.localeCompare(y.group));
+  return {events, weeks, flags, deadline, dlIdx, N};
+}
+function bReadyMap(arr, lastMain){
+  const items = B.assessments.filter(a => a.include && a.name.trim()), P = B.params, m = new Map(); B.why = {};
+  const got = new Map((Array.isArray(arr) ? arr : []).filter(x => x && x.id).map(x => [String(x.id), x]));
+  const lo = P.minWeek, hi = Math.max(lo, lastMain);
+  items.forEach((a, i) => {
+    const x = got.get(a.id); let w = x ? Math.round(Number(x.readyWeek)) : NaN;
+    if (w >= lo && w <= hi) B.why[a.id] = String(x.why || '');
+    else { w = Math.round(lo + (i + 1) * (hi - lo) / items.length); B.why[a.id] = arr ? 'Suggested week was outside the usable range, so it was spread evenly.' : 'Spread evenly across the year.'; }
+    m.set(a.id, w);
+  });
+  return m;
+}
+
+/* Claude steps */
+function calPrompt(text){
+  const y = parseInt(B.year, 10) || 2026;
+  return 'Read this UK college academic calendar and extract the dates needed to schedule assessments. Academic year: ' + B.year + '. Write dates as YYYY-MM-DD and assume they fall between September ' + y + ' and August ' + (y + 1) + ' unless the text says otherwise.\n\n' +
+  'Terms are teaching periods. Closures are any days or weeks inside those terms when learners are not taught: half terms, bank holidays, staff development days, enrolment or induction days, exam periods that block workshops, enrichment weeks. Do not invent dates. If a date is unclear, leave that item out.\n\n' +
+  'Reply with only a JSON object: {"year":"' + B.year + '","terms":[{"name":"Autumn term","start":"' + y + '-09-07","end":"' + y + '-12-18"}],"closures":[{"name":"October half term","start":"' + y + '-10-26","end":"' + y + '-10-30"}],"notes":"anything else that affects assessment planning, in one or two sentences"}\n\nCALENDAR:\n' + text;
+}
+function assessPrompt(text, i, n){
+  return 'You are an experienced Internal Quality Assurer in UK further education. From this extract (part ' + (i + 1) + ' of ' + n + ') of an awarding body specification, list the assessments the centre has to run for the qualification: for example a practical assessment or task per unit, a written test, a portfolio task, a synoptic project, or an externally set or marked assessment. Include assessments the centre schedules; leave out requirements that are not assessment events. Awarding body: ' + B.awardingBody() + '.\n' +
+  'For each give the hours it takes (use the specification’s guidance, otherwise a sensible estimate) and say whether that is an estimate. Do not invent assessments. Return at most 30 items.\n\n' +
+  'Reply with only a JSON array: [{"name":"Practical assessment: setting out","unit":"Unit 201","method":"practical|written test|portfolio|project|external exam|other","hours":3,"estimated":true}]. If there are none, reply [].\n\nEXTRACT:\n' + text;
+}
+B.awardingBody = () => state.settings.body + (state.settings.qual ? ', ' + state.settings.qual : '');
+function planPrompt(teach, lastMain){
+  const P = B.params;
+  const sow = state.docs.filter(d => d.role === 'sow' && d.text).map(d => '=== ' + d.name + ' ===\n' + d.text).join('\n\n').slice(0, 60000);
+  const wk = teach.map(w => w.idx + ': w/c ' + DT.f(w.mon) + (w.term ? ' (' + w.term + ')' : '') + (w.note ? ', closure this week: ' + w.note : '')).join('\n');
+  const items = B.assessments.filter(a => a.include && a.name.trim());
+  return 'You are an experienced curriculum manager in UK further education planning an assessment calendar. ' + B.awardingBody() + '.' + (P.notes ? ' Centre context: ' + P.notes + '.' : '') + (B.calNotes ? ' Calendar notes: ' + B.calNotes + '.' : '') + '\n\n' +
+  'Teaching weeks (number: week commencing):\n' + wk + '\n\nAssessments to schedule (id | unit | name | method | hours):\n' + items.map(a => a.id + ' | ' + (a.unit || '-') + ' | ' + a.name + ' | ' + (a.method || '-') + ' | ' + (a.hours || '?')).join('\n') + '\n\n' +
+  'Groups and delivery days: ' + B.groups.map(g => g.name + ' (' + g.days.map(d => DOWS[d - 1][1]).join(', ') + ')').join('; ') + '.\n\n' +
+  'For each assessment give "readyWeek": the teaching week number by which everything needed for it will have been taught, so it can be assessed from that week. ' + (sow ? 'Base this on the scheme of work below.' : 'No scheme of work was supplied, so sequence sensibly using the specification order, the hours and any prerequisites between units.') + ' readyWeek must be a whole number from ' + P.minWeek + ' to ' + lastMain + '. Spread assessments through the year rather than bunching them, and keep the final weeks free for marking and resits.\n\n' +
+  'Reply with only a JSON array: [{"id":"A01","readyWeek":12,"why":"one short reason"}]' + (sow ? '\n\nSCHEME OF WORK:\n' + sow : '');
+}
+function bNotice(msg, err){ bRef.notice.replaceChildren(msg ? el('div',{class:'notice' + (err ? ' err' : ''), role:'status'}, msg) : ''); }
+function bBusy(on, which, text){
+  B.busy = on; if (which && bRef[which]) bRef[which].textContent = text || '';
+  bRef.readCal.disabled = on || !state.sample || !B.calDocs.length;
+  bRef.readAss.disabled = on || !state.sample || !state.docs.some(d => d.role === 'spec' && d.text);
+  bRef.build.disabled = on;
+}
+async function bReadCal(){
+  if (B.busy) return; bNotice(''); bBusy(true, 'calStatus', 'Reading the calendar…'); state.ctl = new AbortController();
+  try{
+    const text = B.calDocs.map(d => '=== ' + d.name + ' ===\n' + d.text).join('\n\n').slice(0, 120000);
+    const r = await askJson(calPrompt(text));
+    const terms = (r && Array.isArray(r.terms) ? r.terms : []).filter(t => t && DT.valid(t.start) && DT.valid(t.end)).map(t => ({name:String(t.name || 'Term'), start:t.start, end:t.end}));
+    const closures = (r && Array.isArray(r.closures) ? r.closures : []).filter(c => c && DT.valid(c.start)).map(c => ({name:String(c.name || 'Closure'), start:c.start, end:DT.valid(c.end) ? c.end : c.start})).sort((a, b) => a.start.localeCompare(b.start));
+    if (!terms.length) bNotice('No term dates could be found in that calendar. Check the preview of what was read, or add the terms by hand below.', true);
+    else { B.terms = terms; B.closures = closures; B.calNotes = String(r.notes || ''); bNotice('Calendar read. Check the dates below before building.'); }
+    bRenderCal(); bSave();
+  }catch(e){ bNotice(copyFor(e && e.code), true); }
+  bBusy(false, 'calStatus', '');
+}
+async function bReadAssess(){
+  if (B.busy) return; bNotice(''); state.ctl = new AbortController();
+  const specText = state.docs.filter(d => d.role === 'spec' && d.text).map(d => '=== ' + d.name + ' ===\n' + d.text).join('\n\n');
+  const {chunks} = chunkLines(specText, 12000, 16);
+  bBusy(true, 'assStatus', 'Reading the specification (0 of ' + chunks.length + ')…');
+  const results = new Array(chunks.length); let done = 0, fatal = null;
+  await pool(chunks.map((c, i) => async () => {
+    const r = await askJson(assessPrompt(c, i, chunks.length));
+    results[i] = Array.isArray(r) ? r : (r && Array.isArray(r.assessments) ? r.assessments : []);
+    done++; bRef.assStatus.textContent = 'Reading the specification (' + done + ' of ' + chunks.length + ')…';
+  }), 2, e => { fatal = e; });
+  const seen = new Set(B.assessments.map(a => (a.unit + '|' + a.name).toLowerCase())); let added = 0;
+  results.flat().filter(Boolean).forEach(r => {
+    if (!r || typeof r.name !== 'string' || !r.name.trim()) return;
+    const k = (String(r.unit || '') + '|' + r.name).toLowerCase(); if (seen.has(k)) return; seen.add(k);
+    B.assessments.push({id:'A' + String(B.nextA++).padStart(2, '0'), include:true, name:r.name.trim(), unit:String(r.unit || ''), method:String(r.method || ''), hours:Number(r.hours) > 0 ? Number(r.hours) : ''});
+    added++;
+  });
+  bRenderAssess(); bSave();
+  if (fatal) bNotice(copyFor(fatal.code), true);
+  else if (!added) bNotice('No new assessments were found in the specification. Add them by hand below.', true);
+  else bNotice(added + ' assessment' + (added === 1 ? '' : 's') + ' found. Check the list, hours and what to include before building.');
+  bBusy(false, 'assStatus', '');
+}
+function bValidate(){
+  if (!B.terms.some(t => DT.valid(t.start) && DT.valid(t.end) && t.start <= t.end)) return 'Add at least one teaching term with valid start and end dates.';
+  const names = B.groups.map(g => g.name.trim());
+  if (names.some(n => !n) || new Set(names).size !== names.length) return 'Give each group a different name.';
+  if (B.groups.some(g => !g.days.length)) return 'Choose at least one delivery day for every group.';
+  if (!B.assessments.some(a => a.include && a.name.trim())) return 'Add at least one assessment to schedule.';
+  if (B.params.deadline && !DT.valid(B.params.deadline)) return 'The deadline date isn’t valid.';
+  return '';
+}
+async function bBuild(){
+  if (B.busy) return;
+  const msg = bValidate(); if (msg){ bNotice(msg, true); return; }
+  bNotice(''); bBusy(true, 'buildStatus', 'Working out the delivery sequence…'); state.ctl = new AbortController();
+  const P = B.params, {dlIdx, teach} = bDeadline();
+  if (!teach.length){ bNotice('No teaching weeks were found. Check that terms, closures and delivery days leave some open days.', true); bBusy(false, 'buildStatus', ''); return; }
+  const lastMain = Math.max(P.minWeek, dlIdx - (Math.ceil(P.turnaround / 5) + (P.resit ? P.resitGap + P.resitWeeks : 0)));
+  let arr = null, note = '';
+  if (state.sample){
+    try{ arr = await askJson(planPrompt(teach, lastMain)); }
+    catch(e){ if (e && e.code === 'cancelled'){ bBusy(false, 'buildStatus', ''); return; } note = copyFor(e && e.code) + ' The assessments were spread evenly through the year instead.'; }
+  } else note = 'Claude isn’t available here, so the assessments were spread evenly through the year.';
+  const ready = bReadyMap(arr, lastMain); B.ready = [...ready];
+  B.result = buildSchedule(ready); B.result.note = note;
+  bSave(); bRenderResult(); bBusy(false, 'buildStatus', '');
+  bRef.result.scrollIntoView({block:'start'});
+}
+
+/* builder UI */
+function dateInput(obj, key){
+  const i = el('input',{type:'date',class:'inp','aria-label':key + ' date'}); i.value = obj[key] || '';
+  i.addEventListener('input', () => { obj[key] = i.value; bSave(); }); return i;
+}
+function textInput(obj, key, ph, label){
+  const i = el('input',{type:'text',class:'inp',placeholder:ph || '','aria-label':label || ph || key}); i.value = obj[key] || '';
+  i.addEventListener('input', () => { obj[key] = i.value; bSave(); }); return i;
+}
+function bRenderCal(){
+  const h = bRef.calEdit; h.replaceChildren();
+  h.append(el('div',{class:'sub-h'},'Teaching terms'));
+  if (!B.terms.length) h.append(el('p',{class:'fine',style:'margin-bottom:6px'},'No dates yet. Read a calendar above, or add terms and closures by hand.'));
+  B.terms.forEach((t, i) => h.append(el('div',{class:'rowedit t3'}, textInput(t,'name','Term name'), dateInput(t,'start'), dateInput(t,'end'),
+    el('button',{class:'btn small',type:'button','aria-label':'Remove term',onclick:() => { B.terms.splice(i, 1); bRenderCal(); bSave(); }},'Remove'))));
+  h.append(el('button',{class:'btn small',type:'button',onclick:() => { B.terms.push({name:'Term',start:'',end:''}); bRenderCal(); }},'Add a term'));
+  h.append(el('div',{class:'sub-h'},'Closures inside term: half terms, bank holidays, staff days, exam weeks'));
+  B.closures.forEach((c, i) => h.append(el('div',{class:'rowedit t3'}, textInput(c,'name','Closure name'), dateInput(c,'start'), dateInput(c,'end'),
+    el('button',{class:'btn small',type:'button','aria-label':'Remove closure',onclick:() => { B.closures.splice(i, 1); bRenderCal(); bSave(); }},'Remove'))));
+  h.append(el('button',{class:'btn small',type:'button',onclick:() => { B.closures.push({name:'Closure',start:'',end:''}); bRenderCal(); }},'Add a closure'));
+  if (B.calNotes) h.append(el('p',{class:'fine',style:'margin-top:10px'},'Calendar notes: ' + B.calNotes));
+}
+function bRenderGroups(){
+  const h = bRef.groups; h.replaceChildren();
+  B.groups.forEach((g, gi) => {
+    const chips = el('div',{class:'chips'}, DOWS.map(([n, lbl]) => {
+      const cb = el('input',{type:'checkbox'}); cb.checked = g.days.includes(n);
+      cb.addEventListener('change', () => { g.days = cb.checked ? [...g.days, n].sort() : g.days.filter(x => x !== n); bSave(); });
+      return el('label',{class:'chip'}, cb, lbl);
+    }));
+    h.append(el('div',{class:'rowedit grp'}, textInput(g,'name','Group name','Group name'), chips,
+      el('button',{class:'btn small',type:'button',disabled:B.groups.length < 2,'aria-label':'Remove group',onclick:() => { B.groups.splice(gi, 1); bRenderGroups(); bSave(); }},'Remove')));
+  });
+}
+function bRenderAssess(){
+  const h = bRef.assess; h.replaceChildren();
+  if (!B.assessments.length){ h.append(el('p',{class:'fine'},'No assessments yet. Read them from the specification, or add them by hand.')); return; }
+  const tb = el('tbody');
+  B.assessments.forEach((a, i) => {
+    const cb = el('input',{type:'checkbox','aria-label':'Include ' + a.name}); cb.checked = a.include; cb.addEventListener('change', () => { a.include = cb.checked; bSave(); });
+    const hrs = el('input',{type:'number',class:'inp',min:0,step:0.5,'aria-label':'Hours for ' + a.name}); hrs.value = a.hours === '' ? '' : a.hours;
+    const sc = el('span',{class:'doc-meta'});
+    const upd = () => { const v = Number(hrs.value); sc.textContent = v > 0 ? Math.max(1, Math.ceil(v / B.sessionHours)) + ' day' + (Math.max(1, Math.ceil(v / B.sessionHours)) === 1 ? '' : 's') : '1 day'; };
+    hrs.addEventListener('input', () => { a.hours = hrs.value === '' ? '' : Number(hrs.value); upd(); bSave(); }); upd();
+    tb.append(el('tr',{}, el('td',{}, cb), el('td',{}, textInput(a,'name','Assessment','Assessment name')), el('td',{}, textInput(a,'unit','Unit','Unit')), el('td',{}, textInput(a,'method','Method','Method')), el('td',{}, hrs), el('td',{class:'nowrap'}, sc),
+      el('td',{}, el('button',{class:'btn small',type:'button','aria-label':'Remove ' + a.name,onclick:() => { B.assessments.splice(i, 1); bRenderAssess(); bSave(); }},'Remove'))));
+  });
+  h.append(el('div',{class:'scroll-x'}, el('table',{class:'atable'}, el('thead',{}, el('tr',{}, ['Include','Assessment','Unit','Method','Hours','Needs',''].map(x => el('th',{}, x)))), tb)));
+}
+function bRenderCalDocs(){
+  const l = bRef.calList; l.replaceChildren();
+  B.calDocs.forEach((d, i) => l.append(el('li',{class:'doc'}, el('div',{class:'doc-row'}, el('div',{}, el('div',{class:'doc-name'}, d.name), el('div',{class:'doc-meta'}, fmtNum(d.text.length) + ' characters read')),
+    el('button',{class:'btn small',type:'button',onclick:() => { B.calDocs.splice(i, 1); bRenderCalDocs(); bBusy(B.busy); }},'Remove')),
+    d.note ? el('div',{class:'doc-warn'}, d.note) : null, d.text ? el('details',{}, el('summary',{},'Check what was read'), el('pre',{}, trunc(d.text, 1200))) : null)));
+  bBusy(B.busy);
+}
+async function bAddCalFiles(files){
+  for (const f of files){
+    try{ const r = await extractFile(f); B.calDocs.push({name:f.name, text:r.text, note:r.note || (r.text.length < 50 ? 'Very little text was found in this file.' : '')}); }
+    catch(err){ bNotice('Couldn’t read “' + f.name + '”: ' + (err && err.message ? err.message : 'unknown error'), true); }
+  }
+  bRenderCalDocs();
+}
+function paramField(label, control, span){ return el('label',{class:'f' + (span ? ' span' : '')}, label, control); }
+function bNum(key, min, max){
+  const i = el('input',{type:'number',class:'inp',min,max,step:1}); i.value = B.params[key];
+  i.addEventListener('input', () => { const v = parseInt(i.value, 10); B.params[key] = Math.max(min, Math.min(max, isNaN(v) ? min : v)); bSave(); }); return i;
+}
+function bChk(key, label){
+  const cb = el('input',{type:'checkbox'}); cb.checked = B.params[key]; cb.addEventListener('change', () => { B.params[key] = cb.checked; bSave(); });
+  return el('label',{class:'chip',style:'align-self:flex-start'}, cb, label);
+}
+function buildBuilderShell(){
+  const host = $('#bBody'); bRef.notice = $('#bNotice');
+  // 1 calendar
+  const fin = el('input',{type:'file',multiple:true,accept:'.pdf,.docx,.xlsx,.xls,.csv,.pptx,.txt,.md','aria-label':'Add the college calendar'});
+  fin.addEventListener('change', () => { bAddCalFiles([...fin.files]); fin.value = ''; });
+  const drop = el('label',{class:'drop'}, el('span',{}, el('strong',{},'Choose the college calendar'),' or drop it here'), el('span',{},'PDF, Word, Excel, PowerPoint or text'), fin);
+  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => bAddCalFiles([...(e.dataTransfer ? e.dataTransfer.files : [])]));
+  const yr = el('input',{type:'text',class:'inp',placeholder:'2026/27'}); yr.value = B.year; yr.addEventListener('input', () => { B.year = yr.value.trim() || '2026/27'; bSave(); });
+  bRef.calList = el('ul',{class:'doclist'});
+  bRef.readCal = el('button',{class:'btn',type:'button',disabled:true,onclick:bReadCal},'Read the calendar');
+  bRef.calStatus = el('span',{class:'fine'});
+  bRef.calEdit = el('div');
+  host.append(el('section',{class:'zone'},
+    el('div',{class:'zone-head'}, el('h3',{},'1. College calendar')),
+    el('p',{class:'hint'},'Upload the academic calendar so assessments avoid half terms, bank holidays, staff days and exam weeks. You can also enter terms and closures by hand.'),
+    el('label',{class:'f',style:'max-width:240px'},'Academic year', yr), drop, bRef.calList,
+    el('div',{class:'bar'}, bRef.readCal, bRef.calStatus), bRef.calEdit));
+  // 2 groups
+  bRef.groups = el('div');
+  const sh = el('input',{type:'number',class:'inp',min:1,max:12,step:0.5,style:'max-width:120px'}); sh.value = B.sessionHours;
+  sh.addEventListener('input', () => { const v = Number(sh.value); if (v > 0){ B.sessionHours = v; bRenderAssess(); bSave(); } });
+  host.append(el('section',{class:'zone'},
+    el('div',{class:'zone-head'}, el('h3',{},'2. Groups and delivery days')),
+    el('p',{class:'hint'},'Assessments are placed only on days each group is in college. Add a group for each cohort with a different attendance pattern.'),
+    bRef.groups,
+    el('div',{class:'bar'}, el('button',{class:'btn small',type:'button',onclick:() => { B.groups.push({name:'Group ' + (B.groups.length + 1), days:[1,2,3,4,5]}); bRenderGroups(); bSave(); }},'Add a group')),
+    el('label',{class:'f',style:'max-width:300px'},'Hours in a full delivery day', sh)));
+  // 3 assessments
+  bRef.assess = el('div'); bRef.assStatus = el('span',{class:'fine'});
+  bRef.readAss = el('button',{class:'btn',type:'button',disabled:true,onclick:bReadAssess},'Read assessments from the specification');
+  host.append(el('section',{class:'zone'},
+    el('div',{class:'zone-head'}, el('h3',{},'3. Assessments to schedule')),
+    el('p',{class:'hint'},'The specification you added on the first page is used to list the assessments. Untick any you don’t need, correct the hours, or add your own.'),
+    el('div',{class:'bar'}, bRef.readAss, el('button',{class:'btn',type:'button',onclick:() => { B.assessments.push({id:'A' + String(B.nextA++).padStart(2,'0'), include:true, name:'', unit:'', method:'', hours:''}); bRenderAssess(); }},'Add an assessment'), bRef.assStatus), bRef.assess));
+  // 4 rules
+  const mode = el('select',{class:'inp'}, el('option',{value:'each'},'A resit slot after each assessment'), el('option',{value:'term'},'A resit window at the end of each term'), el('option',{value:'end'},'One resit window at the end of the year'));
+  mode.value = B.params.resitMode; mode.addEventListener('change', () => { B.params.resitMode = mode.value; bSave(); });
+  const dl = el('input',{type:'date',class:'inp'}); dl.value = B.params.deadline; dl.addEventListener('input', () => { B.params.deadline = dl.value; bSave(); });
+  const notes = el('textarea',{class:'inp',rows:2,placeholder:'e.g. Workshop only available Tuesday to Thursday; avoid the week before the EPA window'}); notes.value = B.params.notes; notes.addEventListener('input', () => { B.params.notes = notes.value.trim(); bSave(); });
+  host.append(el('section',{class:'zone'},
+    el('div',{class:'zone-head'}, el('h3',{},'4. Mock and resit rules')),
+    el('div',{class:'paramgrid'},
+      bChk('mock','Schedule a mock before each main assessment'), paramField('Mock this many teaching weeks before', bNum('mockGap',1,12)),
+      bChk('resit','Schedule a resit after each main assessment'), paramField('Resit arrangement', mode),
+      paramField('Teaching weeks between results and resit', bNum('resitGap',1,10)), paramField('Resit window length (weeks)', bNum('resitWeeks',1,4)),
+      paramField('Marking and feedback turnaround (working days)', bNum('turnaround',1,30)), paramField('Tell learners at least this many weeks ahead', bNum('notice',0,8)),
+      bChk('iqa','Add an IQA sampling date'), paramField('IQA sample due (working days after results)', bNum('iqaDays',0,20)),
+      paramField('No assessments before teaching week', bNum('minWeek',1,20)), paramField('Most events per group per week', bNum('maxPerWeek',1,5)),
+      paramField('Last date for all assessments and resits (blank: end of the last term)', dl),
+      paramField('Anything else to consider (optional)', notes, true))));
+  // run
+  bRef.build = el('button',{class:'btn primary',type:'button',onclick:bBuild},'Build the schedule');
+  bRef.buildStatus = el('span',{class:'fine'});
+  bRef.result = el('div',{id:'bResult'});
+  host.append(el('div',{class:'bar'}, bRef.build, bRef.buildStatus), bRef.result);
+  bRenderCal(); bRenderGroups(); bRenderAssess(); bRenderCalDocs();
+  if (B.result) bRenderResult();
+}
+
+/* builder results */
+function bRenderResult(){
+  const h = bRef.result; h.replaceChildren();
+  const res = B.result; if (!res) return;
+  if (B.groupView >= B.groups.length) B.groupView = 0;
+  const g = B.groups[B.groupView];
+  const evs = res.events;
+  const nMain = evs.filter(e => e.type === 'main').length / Math.max(1, B.groups.length);
+  const flagged = evs.filter(e => e.flags.length);
+  const sel = el('select',{class:'inp',style:'max-width:220px','aria-label':'Group to display'}, B.groups.map((x, i) => el('option',{value:i}, x.name))); sel.value = B.groupView;
+  sel.addEventListener('change', () => { B.groupView = +sel.value; bRenderResult(); });
+
+  h.append(el('h2',{style:'margin:34px 0 6px'},'Assessment schedule ' + B.year),
+    el('p',{class:'fine'}, fmtNum(evs.length) + ' events for ' + B.groups.length + ' group' + (B.groups.length === 1 ? '' : 's') + ', ' + Math.round(nMain) + ' assessment' + (Math.round(nMain) === 1 ? '' : 's') + ' each. Everything is placed on open delivery days, with results due after the turnaround you set. Deadline: ' + (res.deadline ? DT.f(res.deadline) : 'not set') + '.'));
+  if (res.note) h.append(el('div',{class:'notice',style:'margin-top:10px'}, res.note));
+  const all = [...res.flags, ...flagged.flatMap(e => e.flags.map(f => e.group + ', ' + e.aName + ' (' + TYPE_LABEL[e.type].toLowerCase() + '): ' + f))];
+  if (all.length) h.append(el('div',{class:'banner',style:'display:block;margin-top:12px'}, el('b',{},'Check these ' + all.length + ' point' + (all.length === 1 ? '' : 's')), el('ul',{class:'flags'}, all.slice(0, 15).map(t => el('li',{}, t)), all.length > 15 ? el('li',{},'…and ' + (all.length - 15) + ' more in the table below.') : null)));
+  h.append(el('div',{class:'bar',style:'margin:16px 0 4px'},
+    el('button',{class:'btn',type:'button',onclick:bExportXlsx},'Download Excel'),
+    el('button',{class:'btn',type:'button',onclick:() => saveFile('assessment-schedule-' + slug(B.year) + '.csv', bCsv())},'Download CSV'),
+    el('button',{class:'btn',type:'button',onclick:() => saveFile('assessment-schedule-' + slug(B.year) + '.html', bReport())},'Download report (HTML)'),
+    el('button',{class:'btn',type:'button',onclick:bToDoc},'Use in the compliance check')));
+  if (B.groups.length > 1) h.append(el('div',{class:'bar',style:'margin:12px 0'}, el('label',{class:'f'},'Show group', sel)));
+  h.append(el('div',{class:'key'}, el('span',{}, el('b',{class:'k-main'},'A'),'Main assessment'), el('span',{}, el('b',{class:'k-mock'},'M'),'Mock'), el('span',{}, el('b',{class:'k-resit'},'R'),'Resit'), el('span',{},'Hatched weeks are closed')));
+  h.append(bTimeline(res, g));
+  // table
+  const rows = evs.filter(e => e.group === g.name);
+  const tb = el('tbody');
+  rows.forEach(e => tb.append(el('tr',{},
+    el('td',{}, el('div',{}, e.aName), e.unit ? el('div',{class:'doc-meta'}, e.unit) : null),
+    el('td',{}, el('span',{class:'typ ' + e.type}, TYPE_LABEL[e.type])),
+    el('td',{class:'nowrap'}, e.from === e.to ? DT.f(e.from) : DT.f(e.from) + ' to ' + DT.f(e.to)),
+    el('td',{class:'nowrap'}, DT.f(e.noticeBy)), el('td',{class:'nowrap'}, e.resultsDue ? DT.f(e.resultsDue) : ''), el('td',{class:'nowrap'}, e.iqaBy ? DT.f(e.iqaBy) : ''),
+    el('td',{}, e.why && e.type === 'main' ? el('div',{class:'doc-meta'}, e.why) : null, e.flags.map(f => el('div',{class:'flagtxt'}, f))))));
+  h.append(el('h3',{style:'margin:24px 0 8px'},'Schedule by date' + (B.groups.length > 1 ? ': ' + g.name : '')),
+    el('div',{class:'scroll-x'}, el('table',{class:'atable ro'}, el('thead',{}, el('tr',{}, ['Assessment','Type','Dates','Learners told by','Results due','IQA sample by','Notes'].map(x => el('th',{}, x)))), tb)));
+}
+function bTimeline(res, g){
+  const weeks = res.weeks, items = B.assessments.filter(a => a.include && a.name.trim());
+  const evs = res.events.filter(e => e.group === g.name);
+  const tbl = el('table',{class:'tl'});
+  const r1 = el('tr',{}, el('th',{class:'name'},''));
+  let i = 0; while (i < weeks.length){ let j = i; while (j + 1 < weeks.length && weeks[j + 1].term === weeks[i].term) j++; r1.append(el('th',{class:'term',colspan:j - i + 1}, weeks[i].term || '')); i = j + 1; }
+  const r2 = el('tr',{}, el('th',{class:'name'},'Week commencing'));
+  weeks.forEach(w => r2.append(el('th',{class:'dt'}, el('span',{}, DT.fs(w.mon)))));
+  const r3 = el('tr',{}, el('th',{class:'name'},'Teaching week'));
+  weeks.forEach(w => r3.append(el('th',{class:w.teaching ? '' : 'off',style:'font-size:11px;color:var(--ink-2)'}, w.idx || '')));
+  tbl.append(el('thead',{}, r1, r2, r3));
+  const tb = el('tbody');
+  items.forEach(a => {
+    const mine = evs.filter(e => e.aId === a.id);
+    const tr = el('tr',{}, el('td',{class:'name'}, a.name));
+    weeks.forEach(w => {
+      const end = DT.add(w.mon, 6); let hit = null;
+      for (const t of ['main','resit','mock']){ const e = mine.find(x => x.type === t && x.dates.some(d => d >= w.mon && d <= end)); if (e){ hit = e; break; } }
+      tr.append(hit ? el('td',{class:'c ev-' + hit.type,title:TYPE_LABEL[hit.type] + ': ' + DT.f(hit.from) + (hit.from !== hit.to ? ' to ' + DT.f(hit.to) : '')}, TYPE_LETTER[hit.type])
+        : el('td',{class:'c' + (w.teaching ? '' : ' off'),title:w.note || ''}));
+    });
+    tb.append(tr);
+  });
+  tbl.append(tb);
+  return el('div',{class:'tlwrap'}, tbl);
+}
+function bRows(){
+  const res = B.result; if (!res) return [];
+  return res.events.map(e => [e.group, e.aName, e.unit, e.method, TYPE_LABEL[e.type], e.from, e.to, e.noticeBy, e.resultsDue, e.iqaBy, e.flags.join(' ')]);
+}
+const B_HEAD = ['Group','Assessment','Unit','Method','Type','Starts','Ends','Learners told by','Results or feedback due','IQA sample by','Notes'];
+function bCsv(){ return '\uFEFF' + [B_HEAD, ...bRows()].map(r => r.map(csvCell).join(',')).join('\r\n'); }
+async function bExportXlsx(){
+  if (typeof XLSX === 'undefined'){ saveFile('assessment-schedule-' + slug(B.year) + '.csv', bCsv()); return; }
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([B_HEAD, ...bRows()]), 'Schedule');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Type','Name','Start','End'], ...B.terms.map(t => ['Term', t.name, t.start, t.end]), ...B.closures.map(c => ['Closure', c.name, c.start, c.end || c.start]),
+    ['Rules','Mock '+ (B.params.mock ? B.params.mockGap + ' teaching weeks before' : 'off') + '; resit ' + (B.params.resit ? B.params.resitMode : 'off') + '; turnaround ' + B.params.turnaround + ' working days','','']]), 'Calendar and rules');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['ID','Include','Assessment','Unit','Method','Hours'], ...B.assessments.map(a => [a.id, a.include ? 'Yes' : 'No', a.name, a.unit, a.method, a.hours])]), 'Assessments');
+  const data = XLSX.write(wb, {type:'array', bookType:'xlsx'});
+  let dl = null; try{ dl = await window.claude.use('downloads'); }catch(e){}
+  if (!dl){ saveFile('assessment-schedule-' + slug(B.year) + '.csv', bCsv()); return; }
+  try{ await dl.save({filename:'assessment-schedule-' + slug(B.year) + '.xlsx', data}); }
+  catch(e){ if (!e || e.code !== 'declined') saveFile('assessment-schedule-' + slug(B.year) + '.csv', bCsv()); }
+}
+function bReport(){
+  const rows = bRows().map(r => '<tr>' + r.map(c => '<td>' + esc(c) + '</td>').join('') + '</tr>').join('');
+  const P = B.params;
+  return '<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><title>Assessment schedule ' + esc(B.year) + '</title><style>body{font:13px/1.5 system-ui,Segoe UI,Arial,sans-serif;color:#142033;max-width:1100px;margin:28px auto;padding:0 20px}h1{font-size:24px;margin:0 0 4px}table{border-collapse:collapse;width:100%}td,th{border-top:1px solid #D3DAE5;padding:6px;text-align:left;vertical-align:top}th{font-size:12px;color:#4B586B}small{color:#4B586B}</style></head><body><h1>Assessment schedule ' + esc(B.year) + '</h1><p><small>' + esc([B.awardingBody(), today()].join(' · ')) + '</small></p>' +
+    '<p><small>Rules used: mock ' + (P.mock ? P.mockGap + ' teaching weeks before the main assessment' : 'not scheduled') + '; resit ' + (P.resit ? ({each:'slot after each assessment',term:'window at the end of each term',end:'one window at the end of the year'})[P.resitMode] : 'not scheduled') + '; marking turnaround ' + P.turnaround + ' working days; learners told ' + P.notice + ' weeks ahead.</small></p>' +
+    '<table><thead><tr>' + B_HEAD.map(x => '<th>' + esc(x) + '</th>').join('') + '</tr></thead><tbody>' + rows + '</tbody></table></body></html>';
+}
+function bToDoc(){
+  const lines = ['Assessment schedule ' + B.year + ' (built with the Spec Check schedule builder)'];
+  B.groups.forEach(g => {
+    lines.push('', '[Group: ' + g.name + ' | delivery days: ' + g.days.map(d => DOWS[d - 1][1]).join(', ') + ']');
+    lines.push('Assessment | Unit | Type | Starts | Ends | Learners told by | Results due | IQA sample by');
+    B.result.events.filter(e => e.group === g.name).forEach(e => lines.push([e.aName, e.unit, TYPE_LABEL[e.type], e.from, e.to, e.noticeBy, e.resultsDue, e.iqaBy].join(' | ')));
+  });
+  const P = B.params;
+  lines.push('', 'Rules: mock ' + (P.mock ? P.mockGap + ' teaching weeks before main assessment' : 'none') + '; resit ' + (P.resit ? P.resitMode : 'none') + '; marking turnaround ' + P.turnaround + ' working days.');
+  state.docs = state.docs.filter(d => !(d.role === 'assess' && d.generated));
+  state.docs.push({id:state.nextId++, role:'assess', name:'Generated assessment schedule ' + B.year, text:lines.join('\n'), note:'Built with the schedule builder.', pasted:false, generated:true});
+  renderDocs('assess'); updateReady(); setView('setup');
+  showNotice('The schedule is now loaded as your assessment schedule. Add the specification and your other documents, then run the compliance check.');
+}
+function openBuilder(){
+  bRenderCalDocs(); bBusy(B.busy); setView('builder');
+}
+function initBuilder(){
+  bLoad(); buildBuilderShell();
+  $('#btnBuilder').addEventListener('click', openBuilder);
+  $('#btnBuilderBack').addEventListener('click', () => setView('setup'));
+  bBusy(false);
+}
+
+function setKeyBtn(){ $('#btnKey').textContent = window.__specKey.get() ? 'API key saved' : 'Add API key'; }
+function initKeyUi(){
+  const K = window.__specKey, modal = $('#keyModal'), inp = $('#keyInput'), mod = $('#keyModel');
+  const open = () => { inp.value = ''; inp.placeholder = K.get() ? 'A key is saved. Paste a new one to replace it.' : 'sk-ant-…'; mod.value = K.getModel(); modal.hidden = false; inp.focus(); };
+  const refresh = async () => { try{ state.sample = await window.claude.use('sample'); }catch(e){ state.sample = null; } updateReady(); bBusy(B.busy); setKeyBtn(); if (state.sample) $('#noticeArea').replaceChildren(); };
+  $('#btnKey').addEventListener('click', open);
+  $('#keySave').addEventListener('click', async () => { const v = inp.value.trim(); if (v) K.set(v); K.setModel(mod.value); modal.hidden = true; await refresh(); });
+  $('#keyClear').addEventListener('click', async () => { K.clear(); modal.hidden = true; await refresh(); showNotice('The saved key was removed from this browser.'); });
+  $('#keyClose').addEventListener('click', () => { modal.hidden = true; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.hidden = true; });
+}
+/* ---------- wiring ---------- */
+function init(){
+  buildZones();
+  const s = state.settings;
+  $('#setBody').addEventListener('change', e => s.body = e.target.value);
+  $('#setQual').addEventListener('input', e => s.qual = e.target.value.trim());
+  $('#setGran').addEventListener('change', e => s.gran = e.target.value);
+  $('#setNotes').addEventListener('input', e => s.notes = e.target.value.trim());
+  $('#btnRun').addEventListener('click', runAudit);
+  initBuilder();
+  $('#btnStop').addEventListener('click', () => { if (state.ctl) state.ctl.abort(); });
+  $('#btnCsv').addEventListener('click', () => saveFile('spec-check-' + slug(state.meta && state.meta.qual) + '.csv', buildCsv()));
+  $('#btnReport').addEventListener('click', () => saveFile('spec-check-report-' + slug(state.meta && state.meta.qual) + '.html', buildReport()));
+  $('#btnBack').addEventListener('click', () => { setView('setup'); $('#btnReset').hidden = false; });
+  $('#btnReset').addEventListener('click', () => {
+    if (!confirm('Clear the current results and start again? Your documents stay loaded.')) return;
+    state.reqs = []; state.cross = null; state.meta = null; try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+    $('#btnReset').hidden = true; $('#btnRestore').hidden = true; $('#noticeArea').replaceChildren(); setView('setup');
+  });
+  $('#modalClose').addEventListener('click', () => { $('#modal').hidden = true; });
+  document.querySelectorAll('#tabs .tab').forEach(t => t.addEventListener('click', () => selectTab(t.dataset.tab)));
+  $('#fQ').addEventListener('input', e => { state.filter.q = e.target.value; renderMatrix(); });
+  $('#fCat').addEventListener('change', e => { state.filter.cat = e.target.value; renderMatrix(); });
+  $('#fUnit').addEventListener('change', e => { state.filter.unit = e.target.value; renderMatrix(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#modal').hidden = true; });
+
+  const saved = loadSaved();
+  if (saved){
+    const b = $('#btnRestore'); b.hidden = false;
+    b.textContent = 'Open last audit (' + new Date(saved.ts).toLocaleDateString('en-GB') + ')';
+    b.addEventListener('click', () => {
+      Object.assign(state.settings, saved.settings || {}); state.reqs = saved.reqs; state.cross = saved.cross || null; state.meta = saved.meta || null;
+      $('#btnReset').hidden = false; renderResults(); setView('results');
+    });
+  }
+  updateReady();
+  (async () => {
+    try{ state.sample = await window.claude.use('sample'); }catch(e){ state.sample = null; }
+    updateReady(); bBusy(B.busy); setKeyBtn();
+    if (!state.sample) showNotice('Add your Anthropic API key (top right) to run checks. Reading files and entering a calendar by hand work without it.');
+  })();
+  initKeyUi();
+}
+init();
+})();
+</script>
+</body>
+</html>
